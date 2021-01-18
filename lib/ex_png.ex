@@ -3,9 +3,11 @@ defmodule ExPng do
 
   def from_file(filename) do
     with {:ok, @signature <> data} <- File.read(filename),
-         {:ok, header_chunk, data} <- parse_ihdr(data)
+         {:ok, header_chunk, data} <- parse_ihdr(data),
+         {:ok, chunks} <- parse_chunks(data, []),
+         {:ok, image} <- ExPng.Image.from_chunks(header_chunk, chunks)
     do
-      {:ok, header_chunk}
+      {:ok, image}
     else
       # file cannot be read
       {:error, error} -> {:error, error, filename}
@@ -16,9 +18,9 @@ defmodule ExPng do
   end
 
   defp parse_ihdr(<<13::32, "IHDR"::bytes, header_data::bytes-size(13), crc::32, rest::binary>> = data) do
-    case :erlang.crc32(["IHDR", header_data]) == crc do
+    case validate_crc("IHDR", header_data, crc) do
       true ->
-        with {:ok, header_chunk} <- ExPng.Chunks.Header.new(header_data) do
+        with {:ok, header_chunk} <- ExPng.Chunks.from_type("IHDR", header_data) do
           {
             :ok,
             header_chunk,
@@ -31,4 +33,21 @@ defmodule ExPng do
     end
   end
   defp parse_ihdr(data), do: {:error, "malformed IHDR", data}
+
+  defp validate_crc(type, data, crc) do
+    :erlang.crc32([type, data]) == crc
+  end
+
+  def parse_chunks(<<>>, chunks), do: {:ok, Enum.reverse(chunks)}
+  def parse_chunks(<<size::32, type::bytes-size(4), chunk_data::bytes-size(size), crc::32, rest::binary>> = data, chunks) do
+    case validate_crc(type, chunk_data, crc) do
+      true ->
+        with {:ok, new_chunk} <- ExPng.Chunks.from_type(type, chunk_data) do
+          parse_chunks(rest, [new_chunk|chunks])
+        end
+      false ->
+        {:error, "malformed #{type}", data}
+    end
+  end
+  def parse_chunks(data), do: {:error, "malformed data", data}
 end
