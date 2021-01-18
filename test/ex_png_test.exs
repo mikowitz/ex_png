@@ -25,4 +25,16 @@ defmodule ExPngTest do
       assert {:error, "malformed IHDR", ^file} = ExPng.from_file(file)
     end
   end
+
+  test "returns an error tuple when the file is missing an IDAT chunk" do
+    with file <- "test/png_suite/broken/image_data/xdtn0g01.png" do
+      assert {:error, "missing IDAT chunks", ^file} = ExPng.from_file(file)
+    end
+  end
+
+  test "returns an error tuple when the IDAT chunk is corrupted" do
+    with file <- "test/png_suite/broken/image_data/xcsn0g01.png" do
+      assert {:error, "malformed IDAT", ^file} = ExPng.from_file(file)
+    end
+  end
 end
