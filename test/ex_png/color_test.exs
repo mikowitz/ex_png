@@ -19,14 +19,16 @@ defmodule ExPng.ColorTest do
 
     test "it can calculate from an Image" do
       for file <- Path.wildcard("test/png_suite/basic/*.png") do
-        with {:ok, image} <- ExPng.from_file(file) do
+        with {:ok, image} <- ExPng.Image.from_file(file) do
           [_, color_type, bit_depth] = Regex.run(~r/basn(\d+).(\d+)\.png$/, file)
+
           [color_type, bit_depth] =
             [color_type, bit_depth]
             |> Enum.map(&Integer.parse/1)
             |> Enum.map(fn {i, ""} -> i end)
 
-          assert Color.pixel_bytesize(image) == Color.pixel_bytesize(color_type, bit_depth)
+          assert Color.pixel_bytesize(image.raw_data) ==
+                   Color.pixel_bytesize(color_type, bit_depth)
         end
       end
     end
@@ -40,8 +42,8 @@ defmodule ExPng.ColorTest do
     end
 
     test "it can calculate from an Image" do
-      {:ok, image} = ExPng.from_file("test/png_suite/basic/basn0g01.png")
-      assert Color.line_bytesize(image) == 4
+      {:ok, image} = ExPng.Image.from_file("test/png_suite/basic/basn0g01.png")
+      assert Color.line_bytesize(image.raw_data) == 4
     end
   end
 end
