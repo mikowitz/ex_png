@@ -1,0 +1,52 @@
+name: "Credo"
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: "[${{matrix.otp}}/${{matrix.elixir}}] CI Tests"
+    strategy:
+      matrix:
+        otp: ['20.3', '21.3', '22.2', '23']
+        elixir: ['1.7.4', '1.8.2', '1.9.4', '1.10.4', '1.11.1']
+        exclude:
+          - otp: '23'
+            elixir: '1.7.4'
+          - otp: '23'
+            elixir: '1.8.2'
+          - otp: '23'
+            elixir: '1.9.4'
+          - otp: '20.3'
+            elixir: '1.10.4'
+          - otp: '20.3'
+            elixir: '1.11.1'
+          - otp: '21.3'
+            elixir: '1.10.4'
+          - otp: '21.3'
+            elixir: '1.11.1'
+    steps:
+      - uses: actions/checkout@v2.3.1
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-elixir@v1.5
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+      - uses: actions/cache@v2
+        id: cache-deps
+        with:
+          path: |
+            deps
+            _build
+            !_build/test/lib/ex_png
+          key: ${{runner.os}}-${{matrix.elixir}}-${{matrix.otp}}-deps-cache-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+      - if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: mix deps.get
+      - if: steps.cache-deps.outputs.cache-hit != 'true'
+        run: MIX_ENV=test mix deps.compile
+      - run: MIX_ENV=test mix credo --all
+
