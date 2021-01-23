@@ -12,3 +12,19 @@ defmodule ExPng.Pixel do
   def rgb(r, g, b), do: %__MODULE__{r: r, g: g, b: b}
   def rgba(r, g, b, a), do: %__MODULE__{r: r, g: g, b: b, a: a}
 end
+
+defimpl Inspect, for: ExPng.Pixel do
+  import Inspect.Algebra
+
+  def inspect(%ExPng.Pixel{r: r, g: g, b: b, a: a}, _opts) do
+    use Bitwise
+
+    pixel =
+      ((r <<< 24) + (g <<< 16) + (b <<< 8) + a)
+      |> Integer.to_string(16)
+      |> String.downcase()
+      |> String.pad_leading(8, "0")
+
+    concat(["0x", pixel])
+  end
+end

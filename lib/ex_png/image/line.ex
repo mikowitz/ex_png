@@ -84,9 +84,16 @@ defmodule ExPng.Image.Line do
     %{line | data: filtered}
   end
 
-  def filter_pass(%__MODULE__{filter_type: @filter_up, data: data} = line, _, %__MODULE__{
-        data: prev_data
-      }) do
+  def filter_pass(%__MODULE__{filter_type: @filter_up, data: data} = line, pixel_size, nil) do
+    prev_data = build_pad_for_filter(byte_size(data))
+    filter_pass(line, pixel_size, prev_data)
+  end
+
+  def filter_pass(%__MODULE__{filter_type: @filter_up} = line, pixel_size, %__MODULE__{data: prev_data}) do
+    filter_pass(line, pixel_size, prev_data)
+  end
+
+  def filter_pass(%__MODULE__{filter_type: @filter_up, data: data} = line, _pixel_size, prev_data) do
     filtered =
       Enum.reduce(0..(byte_size(data) - 1), <<>>, fn i, acc ->
         <<_::bytes-size(i), bit, _::binary>> = data
@@ -102,17 +109,11 @@ defmodule ExPng.Image.Line do
     filter_pass(line, pixel_size, prev_data)
   end
 
-  def filter_pass(%__MODULE__{filter_type: @filter_average} = line, pixel_size, %__MODULE__{
-        data: prev_data
-      }) do
+  def filter_pass(%__MODULE__{filter_type: @filter_average} = line, pixel_size, %__MODULE__{data: prev_data}) do
     filter_pass(line, pixel_size, prev_data)
   end
 
-  def filter_pass(
-        %__MODULE__{filter_type: @filter_average, data: data} = line,
-        pixel_size,
-        prev_data
-      ) do
+  def filter_pass(%__MODULE__{filter_type: @filter_average, data: data} = line, pixel_size, prev_data) do
     pad = build_pad_for_filter(pixel_size)
     data = for <<pixel::bytes-size(pixel_size) <- data>>, do: pixel
     prev_line = for <<pixel::bytes-size(pixel_size) <- prev_data>>, do: pixel
@@ -146,17 +147,11 @@ defmodule ExPng.Image.Line do
     filter_pass(line, pixel_size, prev_data)
   end
 
-  def filter_pass(%__MODULE__{filter_type: @filter_paeth} = line, pixel_size, %__MODULE__{
-        data: prev_data
-      }) do
+  def filter_pass(%__MODULE__{filter_type: @filter_paeth} = line, pixel_size, %__MODULE__{data: prev_data}) do
     filter_pass(line, pixel_size, prev_data)
   end
 
-  def filter_pass(
-        %__MODULE__{filter_type: @filter_paeth, data: data} = line,
-        pixel_size,
-        prev_data
-      ) do
+  def filter_pass(%__MODULE__{filter_type: @filter_paeth, data: data} = line, pixel_size, prev_data) do
     pad = build_pad_for_filter(pixel_size)
     data = for <<pixel::bytes-size(pixel_size) <- data>>, do: pixel
     prev_line = for <<pixel::bytes-size(pixel_size) <- prev_data>>, do: pixel

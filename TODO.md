@@ -1,21 +1,17 @@
 ## Image manipulation (by pixel)
 
-* Access implementation for pixels
+~~Access implementation for pixels~~
 
 ## Image encoding
 
-1. simple, no filter
+1. ~~simple, no filter~~
 2. palettes
 3. sub and up filters
 4. average filter
 5. paeth filter
 
 write to file:
-* signature
-* header
 * (palette)
-* data
-* end
 
 ## adam7 interlacing
 

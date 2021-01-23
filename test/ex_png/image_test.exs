@@ -2,7 +2,7 @@ defmodule ExPng.ImageTest do
   use ExUnit.Case
   use ExPng.Constants
 
-  alias ExPng.{Chunks.Header, Image}
+  alias ExPng.{Chunks.Header, Image, Pixel}
 
   describe "round trip" do
     test "for grayscale images" do
@@ -73,6 +73,61 @@ defmodule ExPng.ImageTest do
       else
         _ -> assert false
       end
+    end
+  end
+
+  describe "drawing" do
+    test "it uses Access behaviour to set/find/erase pixels" do
+      image = Image.new(10, 10)
+      assert Image.at(image, [2, 3]) == Pixel.white()
+      image = Image.draw(image, [2, 3], Pixel.black())
+      assert Image.at(image, [2, 3]) == Pixel.black()
+      image = Image.clear(image, [2, 3])
+      assert Image.at(image, [2, 3]) == Pixel.white()
+    end
+
+    test "erase will clear the image" do
+      image = Image.new(10, 10)
+      clean_pixels = image.pixels
+
+      image = Image.line(image, 0, 0, 5, 4)
+      refute image.pixels == clean_pixels
+
+      image = Image.erase(image)
+
+      assert image.pixels == clean_pixels
+    end
+
+    test "it draws a horizontal line" do
+      image = Image.new(10, 10)
+      image = Image.line(image, 0, 5, 9, 5)
+      {:ok, reference} = Image.from_file("test/png_suite/drawing/horizontal.png")
+
+      assert image.pixels == reference.pixels
+    end
+
+    test "it draws a vertical line" do
+      image = Image.new(10, 10)
+      image = Image.line(image, 3, 0, 3, 9)
+      {:ok, reference} = Image.from_file("test/png_suite/drawing/vertical.png")
+
+      assert image.pixels == reference.pixels
+    end
+
+    test "it draws a horizontal line with slope of 1" do
+      image = Image.new(10, 10)
+      image = Image.line(image, 0, 0, 9, 9)
+      {:ok, reference} = Image.from_file("test/png_suite/drawing/diagonal.png")
+
+      assert image.pixels == reference.pixels
+    end
+
+    test "it draws an anti-aliased diagonal line" do
+      image = Image.new(10, 10)
+      image = Image.line(image, 0, 2, 9, 8)
+      {:ok, reference} = Image.from_file("test/png_suite/drawing/slope.png")
+
+      assert image.pixels == reference.pixels
     end
   end
 end
