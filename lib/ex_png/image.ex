@@ -44,17 +44,9 @@ defmodule ExPng.Image do
     end
   end
 
-  def draw(%__MODULE__{} = image, [x, y], pixel) do
-    update_in(image, [{x, y}], fn _ -> pixel end)
-  end
-
-  def at(%__MODULE__{} = image, [x, y]) do
-    get_in(image, [{x, y}])
-  end
-
-  def clear(%__MODULE__{} = image, [x, y]) do
-    pop_in(image, [{x, y}])
-  end
+  defdelegate draw(image, xy, color), to: Drawing
+  defdelegate at(image, xy), to: Drawing
+  defdelegate clear(image, xy), to: Drawing
 
   def erase(%__MODULE__{} = image) do
     %{
@@ -122,16 +114,11 @@ defmodule ExPng.Image do
 end
 
 defimpl Inspect, for: ExPng.Image do
-  import Inspect.Algebra
-
   def inspect(%ExPng.Image{pixels: pixels}, _opts) do
-    lines =
-      for line <- pixels do
-        Enum.map(line, &inspect/1)
-        |> Enum.join(" ")
-        |> Kernel.<>("\n")
-      end
-
-    concat(lines)
+    for line <- pixels do
+      Enum.map(line, &inspect/1)
+      |> Enum.join(" ")
+    end
+    |> Enum.join("\n")
   end
 end
