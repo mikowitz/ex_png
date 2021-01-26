@@ -20,7 +20,7 @@ defmodule ExPng.ColorTest do
     test "it can calculate from an Image" do
       for file <- Path.wildcard("test/png_suite/basic/*.png") do
         with {:ok, image} <- ExPng.Image.from_file(file) do
-          [_, color_type, bit_depth] = Regex.run(~r/basn(\d+).(\d+)\.png$/, file)
+          [_, color_type, bit_depth] = Regex.run(~r/bas[ni](\d+).(\d+)\.png$/, file)
 
           [color_type, bit_depth] =
             [color_type, bit_depth]

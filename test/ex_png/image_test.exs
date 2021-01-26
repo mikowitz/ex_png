@@ -11,6 +11,12 @@ defmodule ExPng.ImageTest do
       end
     end
 
+    test "for grayscale interlaced images" do
+      for file <- Path.wildcard("test/png_suite/basic/basi0g*.png") do
+        assert_round_trip(file)
+      end
+    end
+
     test "for truecolor images" do
       for file <- Path.wildcard("test/png_suite/basic/basn2c*.png") do
         assert_round_trip(file)
