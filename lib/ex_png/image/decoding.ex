@@ -3,8 +3,18 @@ defmodule ExPng.Image.Decoding do
 
   use ExPng.Constants
 
-  alias ExPng.{Chunks.ImageData, Color, Image, Image.Line, RawData}
+  alias ExPng.{Chunks.ImageData, Color, Image, Image.Adam7, Image.Line, RawData}
 
+  def from_raw_data(%ExPng.RawData{header_chunk: %{interlace: 1}} = data) do
+    %{width: width, height: height} = data.header_chunk
+    image = Image.new(width, height)
+    image =
+      data
+      |> Adam7.extract_sub_images()
+      |> Adam7.compose_sub_images(image)
+
+    %{image | raw_data: data}
+  end
   def from_raw_data(%ExPng.RawData{} = data) do
     image =
       data
@@ -37,6 +47,15 @@ defmodule ExPng.Image.Decoding do
       lines = do_to_lines(line_size, data.data, [])
       %{image | lines: lines}
     end
+  end
+
+  def filter_pass(lines, pixel_size) do
+    Enum.reduce(lines, [nil], fn line, [prev | _] = acc ->
+      new_line = Line.filter_pass(line, pixel_size, prev)
+      [new_line | acc]
+    end)
+    |> Enum.reverse()
+    |> Enum.drop(1)
   end
 
   def filter_pass(%RawData{lines: lines} = image) do

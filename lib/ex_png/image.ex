@@ -20,6 +20,13 @@ defmodule ExPng.Image do
       height: height
     }
   end
+  def new(pixels) do
+    %__MODULE__{
+      pixels: pixels,
+      width: length(Enum.at(pixels, 0)),
+      height: length(pixels)
+    }
+  end
 
   def from_file(filename) do
     case ExPng.RawData.from_file(filename) do
