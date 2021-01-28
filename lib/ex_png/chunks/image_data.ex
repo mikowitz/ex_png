@@ -34,7 +34,7 @@ defmodule ExPng.Chunks.ImageData do
     data =
       Enum.map(pixels, fn line ->
         Enum.reduce(line, <<0>>, fn pixel, acc ->
-          acc <> <<pixel.r, pixel.g, pixel.b>>
+          acc <> <<pixel.r, pixel.g, pixel.b, pixel.a>>
         end)
       end)
       |> Enum.reverse()

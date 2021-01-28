@@ -33,5 +33,5 @@ defmodule ExPng.Image.Encoding do
   end
 
   def calculate_bit_depth(_image), do: 8
-  def calculate_color_type(_image), do: @truecolor
+  def calculate_color_type(_image), do: @truecolor_alpha
 end
