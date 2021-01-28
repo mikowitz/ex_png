@@ -34,7 +34,7 @@ defmodule ExPng.Chunks.ImageData do
     data =
       Enum.map(pixels, fn line ->
         Enum.reduce(line, <<0>>, fn pixel, acc ->
-          acc <> <<pixel.r, pixel.g, pixel.b>>
+          acc <> <<pixel.r, pixel.g, pixel.b, pixel.a>>
         end)
       end)
       |> Enum.reverse()
@@ -61,9 +61,12 @@ defmodule ExPng.Chunks.ImageData do
   defp deflate(data) do
     zstream = :zlib.open()
     :zlib.deflateInit(zstream)
-    [deflated_data] = :zlib.deflate(zstream, data, :finish)
+    deflated_data = :zlib.deflate(zstream, data, :finish)
     :zlib.deflateEnd(zstream)
     :zlib.close(zstream)
     deflated_data
+    |> List.flatten()
+    |> Enum.reverse()
+    |> Enum.reduce(&Kernel.<>/2)
   end
 end

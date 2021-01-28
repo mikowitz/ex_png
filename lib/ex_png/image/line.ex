@@ -13,7 +13,7 @@ defmodule ExPng.Image.Line do
 
   def to_pixels(line, bit_depth, color_type, palette \\ nil)
 
-  def to_pixels(%__MODULE__{data: data}, 1, 0, _) do
+  def to_pixels(%__MODULE__{data: data}, 1, @grayscale, _) do
     for <<x::1 <- data>>, do: Pixel.grayscale(x * 255)
   end
 
@@ -182,7 +182,9 @@ defmodule ExPng.Image.Line do
 
   defp calculate_paeth_delta(a, b, c) do
     p = a + b - c
-    [pa, pb, pc] = Enum.map([a, b, c], &abs(p - &1))
+    pa = abs(p - a)
+    pb = abs(p - b)
+    pc = abs(p - c)
 
     cond do
       pa <= pb && pa <= pc -> a
