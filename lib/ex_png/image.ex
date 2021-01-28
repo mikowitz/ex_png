@@ -85,8 +85,8 @@ defmodule ExPng.Image do
       true ->
         pixel =
           image.pixels
-          |> Enum.at(round(y))
-          |> Enum.at(round(x))
+          |> Enum.at(y)
+          |> Enum.at(x)
 
         {:ok, pixel}
 

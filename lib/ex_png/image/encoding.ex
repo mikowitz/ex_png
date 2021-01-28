@@ -24,14 +24,11 @@ defmodule ExPng.Image.Encoding do
     %Header{
       width: image.width,
       height: image.height,
-      bit_depth: calculate_bit_depth(image),
-      color_type: calculate_color_type(image),
+      bit_depth: 8,
+      color_type: @truecolor_alpha,
       compression: 0,
       filter: 0,
       interlace: 0
     }
   end
-
-  def calculate_bit_depth(_image), do: 8
-  def calculate_color_type(_image), do: @truecolor
 end

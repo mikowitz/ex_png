@@ -80,7 +80,7 @@ defmodule ExPng.Image.Drawing do
 
   def put_color(image, x, y, color, steep, c) do
     [x, y] = if steep, do: [y, x], else: [x, y]
-    draw(image, [x, y], anti_alias(color, at(image, [x, y]), c))
+    draw(image, [round(x), round(y)], anti_alias(color, at(image, [round(x), round(y)]), c))
   end
 
   def anti_alias(color, old, ratio) do
