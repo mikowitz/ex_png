@@ -7,6 +7,8 @@ defmodule ExPng.Image.Decoding do
 
   def from_raw_data(%ExPng.RawData{header_chunk: %{interlace: 1}} = data) do
     %{width: width, height: height} = data.header_chunk
+
+
     image = Image.new(width, height)
     image =
       data
@@ -18,7 +20,7 @@ defmodule ExPng.Image.Decoding do
   def from_raw_data(%ExPng.RawData{} = data) do
     image =
       data
-      |> to_lines()
+      |> build_lines()
       |> filter_pass()
 
     pixels =
@@ -40,11 +42,12 @@ defmodule ExPng.Image.Decoding do
     }
   end
 
-  def to_lines(%ExPng.RawData{data_chunks: data} = image) do
-    data = ImageData.merge(data)
-
+  def build_lines(%ExPng.RawData{data_chunk: data} = image) do
     with line_size <- Color.line_bytesize(image) do
-      lines = do_to_lines(line_size, data.data, [])
+      lines =
+        for <<f, line::bytes-size(line_size) <- data.data>> do
+          Line.new(f, line)
+        end
       %{image | lines: lines}
     end
   end
@@ -68,18 +71,5 @@ defmodule ExPng.Image.Decoding do
       |> Enum.drop(1)
 
     %{image | lines: lines}
-  end
-
-  defp do_to_lines(_, <<>>, lines), do: Enum.reverse(lines)
-
-  defp do_to_lines(line_size, data, lines) do
-    case data do
-      <<f, line::bytes-size(line_size), rest::binary>> ->
-        new_line = Line.new(f, line)
-        do_to_lines(line_size, rest, [new_line | lines])
-
-      _ ->
-        {:error, "can't parse line"}
-    end
   end
 end

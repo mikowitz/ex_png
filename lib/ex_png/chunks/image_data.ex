@@ -6,10 +6,6 @@ defmodule ExPng.Chunks.ImageData do
   def new("IDAT", data) do
     image_data =
       data
-      |> inflate()
-      |> List.flatten()
-      |> reduce_to_binary()
-
     {:ok, %__MODULE__{data: image_data}}
   end
 
@@ -25,6 +21,9 @@ defmodule ExPng.Chunks.ImageData do
     data =
       data_chunks
       |> Enum.map(& &1.data)
+      |> reduce_to_binary()
+      |> inflate()
+      |> List.flatten()
       |> reduce_to_binary()
 
     %ExPng.Chunks.ImageData{data: data}
@@ -49,7 +48,7 @@ defmodule ExPng.Chunks.ImageData do
     end)
   end
 
-  defp inflate(data) do
+  def inflate(data) do
     zstream = :zlib.open()
     :zlib.inflateInit(zstream)
     inflated_data = :zlib.inflate(zstream, data)

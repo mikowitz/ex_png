@@ -14,7 +14,7 @@ defmodule ExPng.Image.Encoding do
       :ok,
       %RawData{
         header_chunk: header,
-        data_chunks: [image_data_chunk],
+        data_chunk: image_data_chunk,
         end_chunk: %End{}
       }
     }
