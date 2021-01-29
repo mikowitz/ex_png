@@ -8,7 +8,7 @@ defmodule ExPng.RawData do
 
   defstruct [
     :header_chunk,
-    :data_chunks,
+    :data_chunk,
     :palette_chunk,
     :ancillary_chunks,
     :end_chunk,
@@ -32,10 +32,7 @@ defmodule ExPng.RawData do
   end
 
   def to_png(%__MODULE__{} = raw_data, filename) do
-    image_data =
-      Enum.reduce(raw_data.data_chunks, <<>>, fn chunk, acc ->
-        acc <> ImageData.to_bytes(chunk)
-      end)
+    image_data = ImageData.to_bytes(raw_data.data_chunk)
 
     data =
       @signature <>
@@ -89,7 +86,7 @@ defmodule ExPng.RawData do
         :ok,
         %__MODULE__{
           header_chunk: header_chunk,
-          data_chunks: data_chunks,
+          data_chunk: ImageData.merge(data_chunks),
           end_chunk: end_chunk,
           palette_chunk: palette,
           ancillary_chunks: chunks

@@ -21,7 +21,7 @@ defmodule ExPng.Image.Adam7 do
   end
 
   def extract_sub_images(%RawData{} = raw_data) do
-    [data] = raw_data.data_chunks
+    data = raw_data.data_chunk
     palette = raw_data.palette_chunk
     %{
       width: width,
