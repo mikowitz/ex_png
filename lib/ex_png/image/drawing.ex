@@ -1,32 +1,100 @@
 defmodule ExPng.Image.Drawing do
-  @moduledoc false
+  @moduledoc """
+  Utility module to hold functions related to drawing on images.
+  """
+
+  @type coordinate_pair :: {integer, integer}
 
   alias ExPng.Image
 
-  def draw_horizontal_line(%Image{} = image, x0, y, x1, y, color) do
+  @doc """
+  Colors the pixel at the given `{x, y}` coordinates in the image the provided
+  color.
+  """
+  @spec draw(Image.t, coordinate_pair, ExPng.Pixel.t | nil) :: Image.t
+  def draw(%Image{} = image, {_, _} = coordinates, color \\ ExPng.Pixel.black()) do
+    update_in(image, [coordinates], fn _ -> color end)
+  end
+
+  @doc """
+  Returns the pixel at the given `{x, y}` coordinates in the image.
+  """
+  @spec at(Image.t, coordinate_pair) :: ExPng.Pixel.t
+  def at(%Image{} = image, {_, _} = coordinates) do
+    get_in(image, [coordinates])
+  end
+
+  @doc """
+  Clears the pixel at the given `{x, y}` coordinates in the image, coloring it
+  opaque white.
+  """
+  @spec clear(Image.t, coordinate_pair) :: Image.t
+  def clear(%Image{} = image, {_, _} = coordinates) do
+    pop_in(image, [coordinates])
+  end
+
+  @doc """
+  Erases all content in the image, setting every pixel to opaque white
+  """
+  @spec erase(Image.t) :: Image.t
+  def erase(%Image{} = image) do
+    %{image | pixels: build_pixels(image.width, image.height)}
+  end
+
+  defp build_pixels(width, height) do
+    for _ <- 1..height do
+      Stream.cycle([ExPng.Pixel.white()]) |> Enum.take(width)
+    end
+  end
+
+
+  @doc """
+  Draws a line between the given coordinates in the image.
+
+  Shortcut functions are provided for horizontal lines, vertical lines, and
+  lines with a slope of 1 or -1. For other angles, [Xiaolin Wu's algorithm for
+  drawing anti-aliased lines](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm) is used.
+  """
+  @spec line(Image.t, coordinate_pair, coordinate_pair, ExPng.Pixel.t | nil) :: Image.t
+  def line(%Image{} = image, {x0, y0} = coordinates0, {x1, y1} = coordinates1, color \\ ExPng.Pixel.black()) do
+    dx = x1 - x0
+    dy = y1 - y0
+
+    drawing_func =
+      case {abs(dx), abs(dy)} do
+        {_, 0} -> &draw_horizontal_line/6
+        {0, _} -> &draw_vertical_line/6
+        {d, d} -> &draw_diagonal_line/6
+        _ -> &draw_line/6
+      end
+
+    drawing_func.(image, x0, y0, x1, y1, color)
+  end
+
+  defp draw_horizontal_line(%Image{} = image, x0, y, x1, y, color) do
     Enum.reduce(x0..x1, image, fn x, image ->
-      draw(image, [x, y], color)
+      draw(image, {x, y}, color)
     end)
   end
 
-  def draw_vertical_line(%Image{} = image, x, y0, x, y1, color) do
+  defp draw_vertical_line(%Image{} = image, x, y0, x, y1, color) do
     Enum.reduce(y0..y1, image, fn y, image ->
-      draw(image, [x, y], color)
+      draw(image, {x, y}, color)
     end)
   end
 
-  def draw_diagonal_line(%Image{} = image, x0, y0, x1, y1, color) do
+  defp draw_diagonal_line(%Image{} = image, x0, y0, x1, y1, color) do
     dy = if y1 < y0, do: -1, else: 1
 
     {_, image} =
       Enum.reduce(x0..x1, {y0, image}, fn x, {y, image} ->
-        {y + dy, draw(image, [x, y], color)}
+        {y + dy, draw(image, {x, y}, color)}
       end)
 
     image
   end
 
-  def draw_line(%Image{} = image, x0, y0, x1, y1, color) do
+  defp draw_line(%Image{} = image, x0, y0, x1, y1, color) do
     steep = abs(y1 - y0) > abs(x1 - x0)
 
     [x0, y0, x1, y1] =
@@ -78,12 +146,12 @@ defmodule ExPng.Image.Drawing do
     {image, xpxl, yend}
   end
 
-  def put_color(image, x, y, color, steep, c) do
+  defp put_color(image, x, y, color, steep, c) do
     [x, y] = if steep, do: [y, x], else: [x, y]
-    draw(image, [round(x), round(y)], anti_alias(color, at(image, [round(x), round(y)]), c))
+    draw(image, {round(x), round(y)}, anti_alias(color, at(image, {round(x), round(y)}), c))
   end
 
-  def anti_alias(color, old, ratio) do
+  defp anti_alias(color, old, ratio) do
     [r, g, b] =
       [color.r, color.g, color.b]
       |> Enum.zip([old.r, old.g, old.b])
@@ -92,19 +160,7 @@ defmodule ExPng.Image.Drawing do
     ExPng.Pixel.rgb(r, g, b)
   end
 
-  def ipart(x), do: Float.floor(x)
-  def fpart(x), do: x - ipart(x)
-  def rfpart(x), do: 1.0 - fpart(x)
-
-  def draw(%Image{} = image, [x, y], pixel) do
-    update_in(image, [{x, y}], fn _ -> pixel end)
-  end
-
-  def at(%Image{} = image, [x, y]) do
-    get_in(image, [{x, y}])
-  end
-
-  def clear(%Image{} = image, [x, y]) do
-    pop_in(image, [{x, y}])
-  end
+  defp ipart(x), do: Float.floor(x)
+  defp fpart(x), do: x - ipart(x)
+  defp rfpart(x), do: 1.0 - fpart(x)
 end

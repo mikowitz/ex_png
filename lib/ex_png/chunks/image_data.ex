@@ -1,22 +1,30 @@
 defmodule ExPng.Chunks.ImageData do
-  @moduledoc false
+  @moduledoc """
+  Stores the raw data of an IDAT image data chunk from a PNG image.
 
-  defstruct [:data, type: "IDAT"]
+  Since PNG images can be encoded with the image data split between multiple
+  IDAT chunks to allow generating an image in a streaming manner, `merge/1`
+  provides support for merging multiple chunks into one before being fully
+  decoded by `ExPng`.
+  """
 
-  def new("IDAT", data) do
+  @type t :: %__MODULE__{
+    data: binary,
+    type: :IDAT
+  }
+  defstruct [:data, type: :IDAT]
+
+  @spec new(:IDAT, binary) :: __MODULE__.t
+  def new(:IDAT, data) do
     image_data =
       data
     {:ok, %__MODULE__{data: image_data}}
   end
 
-  def to_bytes(%__MODULE__{data: data}) do
-    data = deflate(data)
-    length = byte_size(data)
-    type = <<73, 68, 65, 84>>
-    crc = :erlang.crc32([type, data])
-    <<length::32>> <> type <> data <> <<crc::32>>
-  end
-
+  @doc """
+  Merges a list of ImageData chunks into one
+  """
+  @spec merge([__MODULE__.t, ...]) :: __MODULE__.t
   def merge([%__MODULE__{} | _] = data_chunks) do
     data =
       data_chunks
@@ -27,6 +35,17 @@ defmodule ExPng.Chunks.ImageData do
       |> reduce_to_binary()
 
     %ExPng.Chunks.ImageData{data: data}
+  end
+
+  @behaviour ExPng.Encodeable
+
+  @impl true
+  def to_bytes(%__MODULE__{data: data}) do
+    data = deflate(data)
+    length = byte_size(data)
+    type = <<73, 68, 65, 84>>
+    crc = :erlang.crc32([type, data])
+    <<length::32>> <> type <> data <> <<crc::32>>
   end
 
   def from_pixels(pixels) do
@@ -42,13 +61,15 @@ defmodule ExPng.Chunks.ImageData do
     %__MODULE__{data: data}
   end
 
+  ## PRIVATE
+
   defp reduce_to_binary(chunks) do
     Enum.reduce(chunks, <<>>, fn chunk, acc ->
       acc <> chunk
     end)
   end
 
-  def inflate(data) do
+  defp inflate(data) do
     zstream = :zlib.open()
     :zlib.inflateInit(zstream)
     inflated_data = :zlib.inflate(zstream, data)

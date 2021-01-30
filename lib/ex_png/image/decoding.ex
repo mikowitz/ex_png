@@ -1,9 +1,12 @@
 defmodule ExPng.Image.Decoding do
-  @moduledoc false
+  @moduledoc """
+  Utility module containing functions necessary for decoding a PNG image file
+  into an `ExPng.Image`.
+  """
 
   use ExPng.Constants
 
-  alias ExPng.{Chunks.ImageData, Color, Image, Image.Adam7, Image.Line, RawData}
+  alias ExPng.{Color, Image, Image.Adam7, Image.Line, RawData}
 
   def from_raw_data(%ExPng.RawData{header_chunk: %{interlace: 1}} = data) do
     %{width: width, height: height} = data.header_chunk
@@ -29,7 +32,7 @@ defmodule ExPng.Image.Decoding do
         Line.to_pixels(
           line,
           image.header_chunk.bit_depth,
-          image.header_chunk.color_type,
+          image.header_chunk.color_mode,
           image.palette_chunk
         )
       end)

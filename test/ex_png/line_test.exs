@@ -3,6 +3,8 @@ defmodule ExPng.Image.LineTest do
 
   alias ExPng.{Image.Line, Pixel}
 
+  doctest Line
+
   describe "filtering" do
     test "should decode a line without filtering as is" do
       line = %Line{
@@ -93,7 +95,7 @@ defmodule ExPng.Image.LineTest do
 
         image = canvas.raw_data
         line = Enum.at(image.lines, 0)
-        pixels = Line.to_pixels(line, image.header_chunk.bit_depth, image.header_chunk.color_type)
+        pixels = Line.to_pixels(line, image.header_chunk.bit_depth, image.header_chunk.color_mode)
         assert Enum.at(pixels, 0) == Pixel.white()
         assert Enum.at(pixels, -1) == Pixel.black()
       end
@@ -105,7 +107,7 @@ defmodule ExPng.Image.LineTest do
 
         image = canvas.raw_data
         line = Enum.at(image.lines, 0)
-        pixels = Line.to_pixels(line, image.header_chunk.bit_depth, image.header_chunk.color_type)
+        pixels = Line.to_pixels(line, image.header_chunk.bit_depth, image.header_chunk.color_mode)
         assert Enum.at(pixels, 0) == Pixel.black()
         assert Enum.at(pixels, 4) == Pixel.grayscale(85)
         assert Enum.at(pixels, 8) == Pixel.grayscale(170)
@@ -120,14 +122,14 @@ defmodule ExPng.Image.LineTest do
 
         image = canvas.raw_data
         line = Enum.at(image.lines, 0)
-        pixels = Line.to_pixels(line, image.header_chunk.bit_depth, image.header_chunk.color_type)
+        pixels = Line.to_pixels(line, image.header_chunk.bit_depth, image.header_chunk.color_mode)
         assert Enum.at(pixels, 0) == Pixel.black()
         assert Enum.at(pixels, 8) == Pixel.grayscale(34)
         assert Enum.at(pixels, 16) == Pixel.grayscale(68)
         assert Enum.at(pixels, 24) == Pixel.grayscale(102)
 
         line = Enum.at(image.lines, -1)
-        pixels = Line.to_pixels(line, image.header_chunk.bit_depth, image.header_chunk.color_type)
+        pixels = Line.to_pixels(line, image.header_chunk.bit_depth, image.header_chunk.color_mode)
         assert Enum.at(pixels, 0) == Pixel.grayscale(119)
         assert Enum.at(pixels, 8) == Pixel.grayscale(153)
         assert Enum.at(pixels, 16) == Pixel.grayscale(187)

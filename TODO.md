@@ -15,5 +15,5 @@ write to file:
 
 ## adam7 interlacing
 
-* decoding
+* ~~decoding~~
 * encoding

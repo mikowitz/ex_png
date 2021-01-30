@@ -5,8 +5,8 @@ defmodule ExPng.ColorTest do
 
   describe "pixel_bytesize" do
     test "it returns the correct number of bytes for a default bit depth of 8" do
-      for {color_type, bytesize} <- [{0, 1}, {2, 3}, {3, 1}, {4, 2}, {6, 4}] do
-        assert Color.pixel_bytesize(color_type) == bytesize
+      for {color_mode, bytesize} <- [{0, 1}, {2, 3}, {3, 1}, {4, 2}, {6, 4}] do
+        assert Color.pixel_bytesize(color_mode) == bytesize
       end
     end
 
@@ -20,15 +20,15 @@ defmodule ExPng.ColorTest do
     test "it can calculate from an Image" do
       for file <- Path.wildcard("test/png_suite/basic/*.png") do
         with {:ok, image} <- ExPng.Image.from_file(file) do
-          [_, color_type, bit_depth] = Regex.run(~r/bas[ni](\d+).(\d+)\.png$/, file)
+          [_, color_mode, bit_depth] = Regex.run(~r/bas[ni](\d+).(\d+)\.png$/, file)
 
-          [color_type, bit_depth] =
-            [color_type, bit_depth]
+          [color_mode, bit_depth] =
+            [color_mode, bit_depth]
             |> Enum.map(&Integer.parse/1)
             |> Enum.map(fn {i, ""} -> i end)
 
           assert Color.pixel_bytesize(image.raw_data) ==
-                   Color.pixel_bytesize(color_type, bit_depth)
+                   Color.pixel_bytesize(color_mode, bit_depth)
         end
       end
     end

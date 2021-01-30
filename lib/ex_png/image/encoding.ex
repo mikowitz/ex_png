@@ -1,5 +1,8 @@
 defmodule ExPng.Image.Encoding do
-  @moduledoc false
+  @moduledoc """
+  Utility module containing functtions necessary to encode an `ExPng.Image`
+  back into a PNG file.
+  """
 
   use ExPng.Constants
 
@@ -25,7 +28,7 @@ defmodule ExPng.Image.Encoding do
       width: image.width,
       height: image.height,
       bit_depth: 8,
-      color_type: @truecolor_alpha,
+      color_mode: @truecolor_alpha,
       compression: 0,
       filter: 0,
       interlace: 0

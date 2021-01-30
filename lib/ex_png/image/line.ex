@@ -1,17 +1,91 @@
 defmodule ExPng.Image.Line do
-  @moduledoc false
-  alias ExPng.Pixel
+  @moduledoc """
+  Provides functionality for appyling the appropriate filter to lines of
+  a PNG image and converting them to lists of `ExPng.Pixel` structs.
 
+  A line can have one of five filter types, one of which simply means no filter
+  has been applied, and each slice of pixel data contains its true value. The
+  other four filter types encode the pixel data as the differenc between its
+  true value and a neighboring pixel or pixels, according to which filter type
+  is chosen.
+
+  For `filter_sub`, each slice of pixel data stores the difference between its
+  true value and the pixel immediately to its left (for theleftmost pixel in a
+  line, it stores its full value in place.
+
+  For `filter_up`, each slice stores the difference between its true value and
+  the pixel immediately above it.
+
+  For `filter_average`, each slice stores the difference between its true value
+  and the average of the pixel slices to its left and above it
+
+  With `filter_paeth`, the slice stores the difference betweens its true value
+  and the value of the pixel to its left, above it, or the pixel to its
+  "north-west", whichever of these three is closest to its true value.
+
+
+  By doing this, it makes the total image data able to be compressed
+  more during encoding, reducing total image size when writing to a PNG file.
+
+  `ExPng` can decode PNG files using any type of filtering, but currently
+  encodes all data using `filter_none`.
+  """
   use Bitwise
   use ExPng.Constants
 
+  alias ExPng.Pixel
+
+
+  @type t :: %__MODULE__{
+    filter_type: ExPng.filter(),
+    data: binary()
+  }
   defstruct [:filter_type, :data]
 
+  @doc """
+  Returns a `Line` struct defining the raw data of the line, and the filter
+  type applied to it.
+  """
+  @spec new(ExPng.filter(), binary) :: __MODULE__.t
   def new(filter_type, data) do
     %__MODULE__{filter_type: filter_type, data: data}
   end
 
-  def to_pixels(line, bit_depth, color_type, palette \\ nil)
+  @doc """
+  Parses a de-filtered line of pixel data into a list of `ExPng.Pixel` structs
+  based on the bit depth and color mode of the image. For images that use the
+  `t:ExPng.indexed/0` color mode, the image's `ExPng.Chunks.Palette` data is passed
+  as an optional 4th argument.
+
+  In the code below, in the call to `new/2`, 0 represents the `t:ExPng.filter_none/0`
+  filter type. In the call to `to_pixels/3`, 1 is the bit depth of the line --
+  each piece of a pixel's data is encoded in a single bit -- and 0 is the
+  reperesentation of the `t:ExPng.grayscale/0` color mode.
+
+      iex> line = ExPng.Image.Line.new(0, <<21>>)
+      iex> ExPng.Image.Line.to_pixels(line, 1, 0)
+      [
+        ExPng.Pixel.black(), ExPng.Pixel.black(),
+        ExPng.Pixel.black(), ExPng.Pixel.white(),
+        ExPng.Pixel.black(), ExPng.Pixel.white(),
+        ExPng.Pixel.black(), ExPng.Pixel.white()
+      ]
+
+
+  Here, in the call to `to_pixels/3`, 8 shows that each part of a pixel's
+  definition -- the red, green, and blue values -- is stored in 8 bits, or 1 byte,
+  and the 2 is the code for the `t:ExPng.truecolor/0` color mode.
+
+      iex> line = ExPng.Image.Line.new(0, <<100, 100, 200, 30, 42, 89>>)
+      iex> ExPng.Image.Line.to_pixels(line, 8, 2)
+      [
+        ExPng.Pixel.rgb(100, 100, 200),
+        ExPng.Pixel.rgb(30, 42, 89)
+      ]
+
+  """
+  @spec to_pixels(__MODULE__.t, ExPng.bit_depth, ExPng.color_mode, ExPng.Chunks.Palette.t | nil) :: [ExPng.Pixel.t, ...]
+  def to_pixels(line, bit_depth, color_mode, palette \\ nil)
 
   def to_pixels(%__MODULE__{data: data}, 1, @grayscale, _) do
     for <<x::1 <- data>>, do: Pixel.grayscale(x * 255)
@@ -61,6 +135,11 @@ defmodule ExPng.Image.Line do
     for <<r, _, g, _, b, _, a, _ <- data>>, do: Pixel.rgba(r, g, b, a)
   end
 
+  @doc """
+  Passes a line of pixel data through a filtering algorithm based on its filter
+  type.
+  """
+  @spec filter_pass(__MODULE__.t, ExPng.bit_depth, __MODULE__.t | nil) :: __MODULE__.t
   def filter_pass(line, pixel_size, prev_line \\ nil)
   def filter_pass(%__MODULE__{filter_type: @filter_none} = line, _, _), do: line
 
