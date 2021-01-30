@@ -2,6 +2,7 @@ defmodule ExPng.PixelTest do
   use ExUnit.Case
 
   alias ExPng.Pixel
+  doctest Pixel
 
   describe "inspect" do
     test "it returns a 10-character hex representation of the pixel" do

@@ -27,13 +27,13 @@ defmodule ExPng.Image.Adam7 do
       width: width,
       height: height,
       bit_depth: bit_depth,
-      color_type: color_type
+      color_mode: color_mode
     } = raw_data.header_chunk
     passes = pass_sizes(width, height)
 
     {_, lines, _} = Enum.reduce(passes, {0, [], data.data}, fn [w, h], {pos, lines, data} ->
-      line_length = Color.line_bytesize(color_type, bit_depth, w)
-      pixel_size = Color.pixel_bytesize(color_type, bit_depth)
+      line_length = Color.line_bytesize(color_mode, bit_depth, w)
+      pixel_size = Color.pixel_bytesize(color_mode, bit_depth)
 
       if w * h > 0 do
         {pos, pass_lines, data} = Enum.reduce(1..h, {pos, [], data}, fn _, {pos, lines, data} ->
@@ -45,7 +45,7 @@ defmodule ExPng.Image.Adam7 do
           pass_lines
           |> Enum.reverse()
           |> Decoding.filter_pass(pixel_size)
-          |> Enum.map(& Line.to_pixels(&1, bit_depth, color_type, palette) |> Enum.take(w))
+          |> Enum.map(& Line.to_pixels(&1, bit_depth, color_mode, palette) |> Enum.take(w))
         {pos, [pixels|lines], data}
       else
         {pos, lines, data}
@@ -66,8 +66,8 @@ defmodule ExPng.Image.Adam7 do
       Enum.reduce(coords, image, fn {x, y}, image ->
         new_x = (x <<< x_shift) ||| x_offset
         new_y = (y <<< y_shift) ||| y_offset
-        color = Image.at(sub_image, [x, y])
-        Image.draw(image, [new_x, new_y], color)
+        color = Image.at(sub_image, {x, y})
+        Image.draw(image, {new_x, new_y}, color)
       end)
     end)
   end

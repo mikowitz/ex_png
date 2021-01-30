@@ -9,7 +9,7 @@ defmodule ExPng.Chunks.HeaderTest do
         width: 30,
         height: 17,
         bit_depth: 2,
-        color_type: 4,
+        color_mode: 4,
         compression: 0,
         filter: 0,
         interlace: 0
@@ -51,7 +51,7 @@ defmodule ExPng.Chunks.HeaderTest do
         width: 30,
         height: 17,
         bit_depth: 9,
-        color_type: 4,
+        color_mode: 4,
         compression: 0,
         filter: 0,
         interlace: 0
@@ -65,7 +65,7 @@ defmodule ExPng.Chunks.HeaderTest do
         width: 30,
         height: 17,
         bit_depth: 2,
-        color_type: 7,
+        color_mode: 7,
         compression: 0,
         filter: 0,
         interlace: 0
