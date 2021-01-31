@@ -4,6 +4,9 @@ defmodule ExPng.MixProject do
   def project do
     [
       app: :ex_png,
+      name: "ExPng",
+      description: description(),
+      package: package(),
       version: "0.1.0",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
@@ -32,6 +35,21 @@ defmodule ExPng.MixProject do
       {:excoveralls, "~> 0.10", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.21", only: [:dev, :test], runtime: false},
       {:mix_test_watch, "~> 1.0", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp description do
+    "A pure Elixir implementation of the PNG image format."
+  end
+
+  defp package do
+    [
+      name: "ex_png",
+      files: ~w(lib mix.exs README* UNLICENSE),
+      licences: ["UNLICENSE"],
+      links: %{
+        "GitHub" => "https://github.com/mikowitz/ex_png"
+      }
     ]
   end
 end
