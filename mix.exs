@@ -46,7 +46,7 @@ defmodule ExPng.MixProject do
     [
       name: "ex_png",
       files: ~w(lib mix.exs README* UNLICENSE),
-      licences: ["UNLICENSE"],
+      licenses: ["UNLICENSE"],
       links: %{
         "GitHub" => "https://github.com/mikowitz/ex_png"
       }
