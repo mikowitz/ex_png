@@ -1,7 +1,15 @@
-# ex_png
 
+<center>
+
+![ExPng](priv/expng.png)
+
+![Release](https://img.shields.io/github/v/tag/mikowitz/ex_png)
+![Elixir](https://img.shields.io/badge/elixir-%3E%3D%201.7-blueviolet)
+![UNLICENSE](https://img.shields.io/github/license/mikowitz/ex_png)
 ![CI Tests](https://github.com/mikowitz/ex_png/workflows/CI%20Tests/badge.svg)
 ![Credo](https://github.com/mikowitz/ex_png/workflows/Credo/badge.svg)
+
+</center>
 
 ExPng is a pure Elixir implementation of the PNG image format. It can read and
 write PNG files.
@@ -23,10 +31,9 @@ And run:
 ## Features
 
 * Decodes any image the PNG standard allows. This includes all standard bit depths,
-    color modes, filtering and iterlacing options.
+    color modes, filtering and iterlacing options
 * Encodes using 8 bit depth, truecolor alpha color mode, default zlib compression,
-    and no interlacing. Eventually `ExPng` will be able to choose encoding
-    parameters based on the nature of the image (See [Issue #11][i11])
+    and no interlacing
 * Read/write access to the image's pixels
 * Implements [Xiaolin Wu's algorithm][xw] for drawing antialiased lines
 * Works with all Elixir versions >= 1.7
@@ -48,16 +55,16 @@ Images can be edited by painting/clearing individual pixels, drawing lines, or
 erasing the entire canvas. These editing actions do not occur in layers, and
 change the underlying pixels, so be careful as changes cannot be undone.
 
-    {:ok, image} = ExPng.Image.from_file("adorable_kittens.png")
+    image = ExPng.Image.new(32, 32)
 
     # Draws a pixel with the given color at the given coordinate
-    image = ExPng.Image.draw(image, {5, 8}, ExPng.Pixel.rgb(100, 100, 200))
+    image = ExPng.Image.draw(image, {5, 8}, ExPng.Pixel.rgb(0, 100, 200))
 
     # Draws a line between two points.
     image = ExPng.Image.line(image, {0, 0}, {15, 8}, ExPng.Pixel.black())
 
     # Sets a single pixel to opaque white
-    image = ExPng.Image.clear(image, {7, 3})
+    image = ExPng.Image.clear(image, {0, 0})
 
     # Colors the entire canvas opaque white
     image = ExPng.Image.erase(image)
@@ -66,7 +73,15 @@ change the underlying pixels, so be careful as changes cannot be undone.
 
 Images can be saved via
 
-    ExPng.Image.to_file(filename)
+    ExPng.Image.to_file(image, filename)
+
+Right now all saved images use 8 bit depth and the truecolor color mode. Additional
+options to configure exporting images will be added in future releases. (See
+[Issue #11][i11])
+
+## Documentation
+
+Complete documentation can be found on hexdocs.pm: [ExPng documentation][docs]
 
 ## About
 
@@ -81,3 +96,5 @@ by the author of this library.
 [i11]: https://github.com/mikowitz/ex_png/issues/11
 [pngsuite]: http://www.schaik.com/pngsuite/
 [chunky]: https://github.com/wvanbergen/chunky_png
+[hexdocs]: https://hexdocs.pm
+[docs]: https://hexdocs.pm/ex_png/
