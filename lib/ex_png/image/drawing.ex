@@ -56,7 +56,7 @@ defmodule ExPng.Image.Drawing do
   drawing anti-aliased lines](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm) is used.
   """
   @spec line(Image.t, coordinate_pair, coordinate_pair, ExPng.Pixel.t | nil) :: Image.t
-  def line(%Image{} = image, {x0, y0} = coordinates0, {x1, y1} = coordinates1, color \\ ExPng.Pixel.black()) do
+  def line(%Image{} = image, {x0, y0} = _coordinates0, {x1, y1} = _coordinates1, color \\ ExPng.Pixel.black()) do
     dx = x1 - x0
     dy = y1 - y0
 
