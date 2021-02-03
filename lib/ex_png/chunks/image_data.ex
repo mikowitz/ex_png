@@ -40,8 +40,9 @@ defmodule ExPng.Chunks.ImageData do
   @behaviour ExPng.Encodeable
 
   @impl true
-  def to_bytes(%__MODULE__{data: data}) do
-    data = deflate(data)
+  def to_bytes(%__MODULE__{data: data}, encoding_options) do
+    compression_level = Keyword.get(encoding_options, :compression_level, 6)
+    data = deflate(data, compression_level)
     length = byte_size(data)
     type = <<73, 68, 65, 84>>
     crc = :erlang.crc32([type, data])
@@ -49,11 +50,20 @@ defmodule ExPng.Chunks.ImageData do
   end
 
   def from_pixels(pixels) do
+    this = self()
     data =
       Enum.map(pixels, fn line ->
-        Enum.reduce(line, <<0>>, fn pixel, acc ->
-          acc <> <<pixel.r, pixel.g, pixel.b, pixel.a>>
+        spawn(fn ->
+          line = Enum.reduce(line, <<0>>, fn pixel, acc ->
+            acc <> <<pixel.r, pixel.g, pixel.b, pixel.a>>
+          end)
+          send this, {self(), line}
         end)
+      end)
+      |> Enum.map(fn pid ->
+        receive do
+          {^pid, line} -> line
+        end
       end)
       |> Enum.reverse()
       |> Enum.reduce(&Kernel.<>/2)
@@ -78,9 +88,9 @@ defmodule ExPng.Chunks.ImageData do
     inflated_data
   end
 
-  defp deflate(data) do
+  defp deflate(data, compression_level) do
     zstream = :zlib.open()
-    :zlib.deflateInit(zstream)
+    :zlib.deflateInit(zstream, compression_level)
     deflated_data = :zlib.deflate(zstream, data, :finish)
     :zlib.deflateEnd(zstream)
     :zlib.close(zstream)

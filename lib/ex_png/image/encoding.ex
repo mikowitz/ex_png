@@ -9,7 +9,7 @@ defmodule ExPng.Image.Encoding do
   alias ExPng.Chunks.{End, Header, ImageData}
   alias ExPng.{Image, RawData}
 
-  def to_raw_data(%Image{} = image) do
+  def to_raw_data(%Image{} = image, _encoding_options \\ []) do
     header = build_header(image)
     image_data_chunk = ImageData.from_pixels(image.pixels)
 

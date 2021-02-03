@@ -26,16 +26,7 @@ defmodule ExPng.Image.Decoding do
       |> build_lines()
       |> filter_pass()
 
-    pixels =
-      image.lines
-      |> Enum.map(fn line ->
-        Line.to_pixels(
-          line,
-          image.header_chunk.bit_depth,
-          image.header_chunk.color_mode,
-          image.palette_chunk
-        )
-      end)
+    pixels = build_pixels(image)
 
     %Image{
       pixels: pixels,
@@ -43,6 +34,27 @@ defmodule ExPng.Image.Decoding do
       height: length(pixels),
       width: length(Enum.at(pixels, 0))
     }
+  end
+
+  def build_pixels(image) do
+    this = self()
+    image.lines
+    |> Enum.map(fn line ->
+      spawn(fn ->
+        pixels = Line.to_pixels(
+          line,
+          image.header_chunk.bit_depth,
+          image.header_chunk.color_mode,
+          image.palette_chunk
+        )
+        send this, {self(), pixels}
+      end)
+    end)
+    |> Enum.map(fn pid ->
+      receive do
+        {^pid, pixels} -> pixels
+      end
+    end)
   end
 
   def build_lines(%ExPng.RawData{data_chunk: data} = image) do
