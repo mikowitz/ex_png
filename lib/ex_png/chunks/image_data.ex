@@ -14,15 +14,17 @@ defmodule ExPng.Chunks.ImageData do
   }
   defstruct [:data, type: :IDAT]
 
+  @doc """
+  Returns an `ExPng.Chunks.ImageData` struct from raw
+  image data
+  """
   @spec new(:IDAT, binary) :: __MODULE__.t
   def new(:IDAT, data) do
-    image_data =
-      data
-    {:ok, %__MODULE__{data: image_data}}
+    {:ok, %__MODULE__{data: data}}
   end
 
   @doc """
-  Merges a list of ImageData chunks into one
+  Merges a list of `ExPng.Chunks.ImageData` chunks into one
   """
   @spec merge([__MODULE__.t, ...]) :: __MODULE__.t
   def merge([%__MODULE__{} | _] = data_chunks) do
@@ -49,16 +51,16 @@ defmodule ExPng.Chunks.ImageData do
     <<length::32>> <> type <> data <> <<crc::32>>
   end
 
+  @doc """
+  Convert a 2 dimensional array of `ExPng.Pixel`s
+  to an `ExPng.Chunks.ImageData` struct
+  """
+  @spec from_pixels(ExPng.Image.row) :: __MODULE__.t
   def from_pixels(pixels) do
     this = self()
     data =
       Enum.map(pixels, fn line ->
-        spawn(fn ->
-          line = Enum.reduce(line, <<0>>, fn pixel, acc ->
-            acc <> <<pixel.r, pixel.g, pixel.b, pixel.a>>
-          end)
-          send this, {self(), line}
-        end)
+        spawn(fn -> send this, {self(), line_to_pixels(line)} end)
       end)
       |> Enum.map(fn pid ->
         receive do
@@ -72,6 +74,12 @@ defmodule ExPng.Chunks.ImageData do
   end
 
   ## PRIVATE
+
+  defp line_to_pixels(line) do
+    Enum.reduce(line, <<0>>, fn pixel, acc ->
+      acc <> ExPng.Pixel.to_bytes(pixel)
+    end)
+  end
 
   defp reduce_to_binary(chunks) do
     Enum.reduce(chunks, <<>>, fn chunk, acc ->

@@ -61,6 +61,12 @@ defmodule ExPng.Pixel do
   """
   @spec white() :: __MODULE__.t()
   def white, do: grayscale(255)
+
+  @behaviour ExPng.Encodeable
+
+  def to_bytes(%__MODULE__{r: r, g: g, b: b, a: a}, _encoding_options \\ []) do
+    <<r, g, b, a>>
+  end
 end
 
 defimpl Inspect, for: ExPng.Pixel do
