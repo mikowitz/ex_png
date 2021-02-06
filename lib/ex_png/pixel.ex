@@ -4,6 +4,8 @@ defmodule ExPng.Pixel do
   values, or an index when part of a paletted image.
   """
 
+  use ExPng.Constants
+
   @type rgba_value :: 0..255
   @type t :: %__MODULE__{
     r: rgba_value,
@@ -64,9 +66,21 @@ defmodule ExPng.Pixel do
 
   @behaviour ExPng.Encodeable
 
-  def to_bytes(%__MODULE__{r: r, g: g, b: b, a: a}, _encoding_options \\ []) do
-    <<r, g, b, a>>
+  def to_bytes(%__MODULE__{r: r, g: g, b: b, a: a}, encoding_options \\ []) do
+    color_mode = Keyword.get(encoding_options, :color_mode, @truecolor_alpha)
+    case color_mode do
+      @truecolor_alpha -> <<r, g, b, a>>
+      @truecolor -> <<r, g, b>>
+      @grayscale_alpha -> <<r, a>>
+      @grayscale -> <<r>>
+    end
   end
+
+  def grayscale?(%__MODULE__{r: gr, g: gr, b: gr}), do: true
+  def grayscale?(_), do: false
+
+  def opaque?(%__MODULE__{a: 255}), do: true
+  def opaque?(_), do: false
 end
 
 defimpl Inspect, for: ExPng.Pixel do

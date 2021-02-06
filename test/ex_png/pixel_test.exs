@@ -1,8 +1,46 @@
 defmodule ExPng.PixelTest do
   use ExUnit.Case
+  use ExPng.Constants
 
   alias ExPng.Pixel
   doctest Pixel
+
+  test "grayscale?" do
+    assert Pixel.grayscale?(Pixel.black())
+    assert Pixel.grayscale?(Pixel.white())
+    assert Pixel.grayscale?(Pixel.rgb(100, 100, 100))
+    refute Pixel.grayscale?(Pixel.rgb(100, 101, 100))
+  end
+
+  test "opaque?" do
+    assert Pixel.opaque?(Pixel.black())
+    assert Pixel.opaque?(Pixel.white())
+    assert Pixel.opaque?(Pixel.rgb(100, 100, 100))
+    assert Pixel.opaque?(Pixel.rgb(100, 101, 100))
+    refute Pixel.opaque?(Pixel.rgba(100, 101, 100, 100))
+  end
+
+  describe "to_bytes" do
+    setup do
+      {:ok, pixel: Pixel.rgba(50, 150, 200, 250)}
+    end
+
+    test "when the color_mode is truecolor_alpha", setup do
+      assert Pixel.to_bytes(setup.pixel, color_mode: @truecolor_alpha) == <<50, 150, 200, 250>>
+    end
+
+    test "when the color_mode is truecolor", setup do
+      assert Pixel.to_bytes(setup.pixel, color_mode: @truecolor) == <<50, 150, 200>>
+    end
+
+    test "when the color_mode is grayscale", setup do
+      assert Pixel.to_bytes(setup.pixel, color_mode: @grayscale) == <<50>>
+    end
+
+    test "when the color_mode is grayscale_alpha", setup do
+      assert Pixel.to_bytes(setup.pixel, color_mode: @grayscale_alpha) == <<50, 250>>
+    end
+  end
 
   describe "inspect" do
     test "it returns a 10-character hex representation of the pixel" do
