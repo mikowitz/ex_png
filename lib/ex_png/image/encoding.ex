@@ -36,13 +36,24 @@ defmodule ExPng.Image.Encoding do
     }
   end
 
-  defp determine_color_mode(%Image{pixels: pixels} = _image) do
-    pixels = List.flatten(pixels)
-    case {Enum.all?(pixels, &Pixel.grayscale?/1), Enum.all?(pixels, &Pixel.opaque?/1)} do
+  defp determine_color_mode(%Image{} = image) do
+    case {grayscale?(image), opaque?(image)} do
       {true, true} -> @grayscale
       {true, false} -> @grayscale_alpha
       {false, true} -> @truecolor
       {false, false} -> @truecolor_alpha
     end
+  end
+
+  defp grayscale?(%Image{pixels: pixels}) do
+    pixels
+    |> List.flatten()
+    |> Enum.all?(&Pixel.grayscale?/1)
+  end
+
+  defp opaque?(%Image{pixels: pixels}) do
+    pixels
+    |> List.flatten()
+    |> Enum.all?(&Pixel.opaque?/1)
   end
 end

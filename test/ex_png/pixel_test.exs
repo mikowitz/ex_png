@@ -26,19 +26,19 @@ defmodule ExPng.PixelTest do
     end
 
     test "when the color_mode is truecolor_alpha", setup do
-      assert Pixel.to_bytes(setup.pixel, color_mode: @truecolor_alpha) == <<50, 150, 200, 250>>
+      assert Pixel.to_bytes(setup.pixel, @truecolor_alpha) == <<50, 150, 200, 250>>
     end
 
     test "when the color_mode is truecolor", setup do
-      assert Pixel.to_bytes(setup.pixel, color_mode: @truecolor) == <<50, 150, 200>>
+      assert Pixel.to_bytes(setup.pixel, @truecolor) == <<50, 150, 200>>
     end
 
     test "when the color_mode is grayscale", setup do
-      assert Pixel.to_bytes(setup.pixel, color_mode: @grayscale) == <<50>>
+      assert Pixel.to_bytes(setup.pixel, @grayscale) == <<50>>
     end
 
     test "when the color_mode is grayscale_alpha", setup do
-      assert Pixel.to_bytes(setup.pixel, color_mode: @grayscale_alpha) == <<50, 250>>
+      assert Pixel.to_bytes(setup.pixel, @grayscale_alpha) == <<50, 250>>
     end
   end
 

@@ -77,7 +77,7 @@ defmodule ExPng.Chunks.ImageData do
 
   defp line_to_pixels(line, color_mode) do
     Enum.reduce(line, <<0>>, fn pixel, acc ->
-      acc <> ExPng.Pixel.to_bytes(pixel, color_mode: color_mode)
+      acc <> ExPng.Pixel.to_bytes(pixel, color_mode)
     end)
   end
 

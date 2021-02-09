@@ -64,10 +64,38 @@ defmodule ExPng.Pixel do
   @spec white() :: __MODULE__.t()
   def white, do: grayscale(255)
 
+  @doc """
+  Returns true if the pixel's red, green, and blue values are all the same,
+  and false otherwise.
+
+      iex> Pixel.rgb(200, 200, 200) |> Pixel.grayscale?
+      true
+
+      iex> Pixel.rgb(100, 200, 200) |> Pixel.grayscale?
+      false
+
+  """
+  @spec grayscale?(__MODULE__.t()) :: boolean
+  def grayscale?(%__MODULE__{r: gr, g: gr, b: gr}), do: true
+  def grayscale?(_), do: false
+
+  @doc """
+  Returns true if the pixel's alpha value is 255, and false otherwise.
+
+      iex> Pixel.rgb(200, 200, 200) |> Pixel.opaque?
+      true
+
+      iex> Pixel.rgba(255, 255, 255, 200) |> Pixel.opaque?
+      false
+
+  """
+  @spec opaque?(__MODULE__.t()) :: boolean
+  def opaque?(%__MODULE__{a: 255}), do: true
+  def opaque?(_), do: false
+
   @behaviour ExPng.Encodeable
 
-  def to_bytes(%__MODULE__{r: r, g: g, b: b, a: a}, encoding_options \\ []) do
-    color_mode = Keyword.get(encoding_options, :color_mode, @truecolor_alpha)
+  def to_bytes(%__MODULE__{r: r, g: g, b: b, a: a}, color_mode \\ @truecolor_alpha) do
     case color_mode do
       @truecolor_alpha -> <<r, g, b, a>>
       @truecolor -> <<r, g, b>>
@@ -75,12 +103,6 @@ defmodule ExPng.Pixel do
       @grayscale -> <<r>>
     end
   end
-
-  def grayscale?(%__MODULE__{r: gr, g: gr, b: gr}), do: true
-  def grayscale?(_), do: false
-
-  def opaque?(%__MODULE__{a: 255}), do: true
-  def opaque?(_), do: false
 end
 
 defimpl Inspect, for: ExPng.Pixel do
