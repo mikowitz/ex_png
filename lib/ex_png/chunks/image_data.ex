@@ -51,9 +51,10 @@ defmodule ExPng.Chunks.ImageData do
   def from_pixels(pixels) do
     data =
       Enum.map(pixels, fn line ->
-        Enum.reduce(line, <<0>>, fn pixel, acc ->
-          acc <> <<pixel.r, pixel.g, pixel.b, pixel.a>>
-        end)
+        Task.async(fn -> line_to_binary(line) end)
+      end)
+      |> Enum.map(fn task ->
+        Task.await(task)
       end)
       |> Enum.reverse()
       |> Enum.reduce(&Kernel.<>/2)
@@ -62,6 +63,12 @@ defmodule ExPng.Chunks.ImageData do
   end
 
   ## PRIVATE
+
+  defp line_to_binary(line) do
+    Enum.reduce(line, <<0>>, fn pixel, acc ->
+      acc <> <<pixel.r, pixel.g, pixel.b, pixel.a>>
+    end)
+  end
 
   defp reduce_to_binary(chunks) do
     Enum.reduce(chunks, <<>>, fn chunk, acc ->
