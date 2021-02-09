@@ -1,0 +1,4 @@
+duration:1.0;mem stats:false;sys mem stats:false
+module;test;tags;iterations;elapsed
+ReadBench	read larger image		1	5099730
+ReadBench	read smaller image		2	1940938
