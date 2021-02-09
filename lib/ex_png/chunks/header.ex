@@ -66,7 +66,7 @@ defmodule ExPng.Chunks.Header do
   @behaviour ExPng.Encodeable
 
   @impl true
-  def to_bytes(%__MODULE__{} = header) do
+  def to_bytes(%__MODULE__{} = header, _opts \\ []) do
     with {:ok, bit_depth} <- validate_bit_depth(header.bit_depth),
          {:ok, color_mode} <- validate_color_mode(header.color_mode) do
       length = <<13::32>>

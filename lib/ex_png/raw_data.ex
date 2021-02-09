@@ -49,8 +49,8 @@ defmodule ExPng.RawData do
   end
 
   @doc false
-  def to_file(%__MODULE__{} = raw_data, filename) do
-    image_data = ImageData.to_bytes(raw_data.data_chunk)
+  def to_file(%__MODULE__{} = raw_data, filename, encoding_options \\ []) do
+    image_data = ImageData.to_bytes(raw_data.data_chunk, encoding_options)
 
     data =
       @signature <>

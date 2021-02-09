@@ -40,8 +40,9 @@ defmodule ExPng.Chunks.ImageData do
   @behaviour ExPng.Encodeable
 
   @impl true
-  def to_bytes(%__MODULE__{data: data}) do
-    data = deflate(data)
+  def to_bytes(%__MODULE__{data: data}, encoding_options \\ []) do
+    compression = Keyword.get(encoding_options, :compression, 6)
+    data = deflate(data, compression)
     length = byte_size(data)
     type = <<73, 68, 65, 84>>
     crc = :erlang.crc32([type, data])
@@ -85,9 +86,9 @@ defmodule ExPng.Chunks.ImageData do
     inflated_data
   end
 
-  defp deflate(data) do
+  defp deflate(data, compression) do
     zstream = :zlib.open()
-    :zlib.deflateInit(zstream)
+    :zlib.deflateInit(zstream, compression)
     deflated_data = :zlib.deflate(zstream, data, :finish)
     :zlib.deflateEnd(zstream)
     :zlib.close(zstream)

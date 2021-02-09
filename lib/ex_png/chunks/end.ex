@@ -20,7 +20,7 @@ defmodule ExPng.Chunks.End do
   @behaviour ExPng.Encodeable
 
   @impl true
-  def to_bytes(%__MODULE__{}) do
+  def to_bytes(%__MODULE__{}, _opts \\ []) do
     length = <<0::32>>
     type = <<73, 69, 78, 68>>
     crc = :erlang.crc32([type, <<>>])
