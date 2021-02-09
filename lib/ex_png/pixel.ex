@@ -93,9 +93,13 @@ defmodule ExPng.Pixel do
   def opaque?(%__MODULE__{a: 255}), do: true
   def opaque?(_), do: false
 
+  def black_or_white?(%__MODULE__{r: 0, g: 0, b: 0, a: 255}), do: true
+  def black_or_white?(%__MODULE__{r: 255, g: 255, b: 255, a: 255}), do: true
+  def black_or_white?(_), do: false
+
   @behaviour ExPng.Encodeable
 
-  def to_bytes(%__MODULE__{r: r, g: g, b: b, a: a}, color_mode \\ @truecolor_alpha) do
+  def to_bytes(%__MODULE__{r: r, g: g, b: b, a: a}, color_mode \\ @truecolor_alpha, bit_depth \\ 8) do
     case color_mode do
       @truecolor_alpha -> <<r, g, b, a>>
       @truecolor -> <<r, g, b>>

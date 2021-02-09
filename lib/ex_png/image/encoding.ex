@@ -11,7 +11,7 @@ defmodule ExPng.Image.Encoding do
 
   def to_raw_data(%Image{} = image, _encoding_options \\ []) do
     header = build_header(image)
-    image_data_chunk = ImageData.from_pixels(image.pixels, header.color_mode)
+    image_data_chunk = ImageData.from_pixels(image.pixels, header.color_mode, header.bit_depth)
 
     {
       :ok,
@@ -25,10 +25,11 @@ defmodule ExPng.Image.Encoding do
 
   defp build_header(%Image{} = image) do
     color_mode = determine_color_mode(image)
+    bit_depth = determine_bit_depth(image)
     %Header{
       width: image.width,
       height: image.height,
-      bit_depth: 8,
+      bit_depth: bit_depth,
       color_mode: color_mode,
       compression: 0,
       filter: 0,
@@ -43,6 +44,19 @@ defmodule ExPng.Image.Encoding do
       {false, true} -> @truecolor
       {false, false} -> @truecolor_alpha
     end
+  end
+
+  defp determine_bit_depth(%Image{} = image) do
+    case black_and_white?(image) do
+      true -> 1
+      false -> 8
+    end
+  end
+
+  defp black_and_white?(%Image{pixels: pixels}) do
+    pixels
+    |> List.flatten()
+    |> Enum.all?(&Pixel.black_or_white?/1)
   end
 
   defp grayscale?(%Image{pixels: pixels}) do

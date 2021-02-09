@@ -55,12 +55,12 @@ defmodule ExPng.Chunks.ImageData do
   Convert a 2 dimensional array of `ExPng.Pixel`s
   to an `ExPng.Chunks.ImageData` struct
   """
-  @spec from_pixels(ExPng.Image.row, ExPng.color_mode) :: __MODULE__.t
-  def from_pixels(pixels, color_mode) do
+  @spec from_pixels(ExPng.Image.row, ExPng.color_mode, ExPng.bit_depth) :: __MODULE__.t
+  def from_pixels(pixels, color_mode, bit_depth) do
     this = self()
     data =
       Enum.map(pixels, fn line ->
-        spawn(fn -> send this, {self(), line_to_pixels(line, color_mode)} end)
+        spawn(fn -> send this, {self(), line_to_pixels(line, color_mode, bit_depth)} end)
       end)
       |> Enum.map(fn pid ->
         receive do
@@ -75,9 +75,9 @@ defmodule ExPng.Chunks.ImageData do
 
   ## PRIVATE
 
-  defp line_to_pixels(line, color_mode) do
+  defp line_to_pixels(line, color_mode, bit_depth) do
     Enum.reduce(line, <<0>>, fn pixel, acc ->
-      acc <> ExPng.Pixel.to_bytes(pixel, color_mode)
+      acc <> ExPng.Pixel.to_bytes(pixel, color_mode, bit_depth)
     end)
   end
 
