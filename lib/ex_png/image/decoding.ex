@@ -34,7 +34,7 @@ defmodule ExPng.Image.Decoding do
           image.header_chunk.bit_depth,
           image.header_chunk.color_mode,
           image.palette_chunk
-        )
+        ) |> Enum.take(data.header_chunk.width)
       end)
 
     %Image{

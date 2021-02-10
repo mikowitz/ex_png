@@ -8,6 +8,11 @@ defmodule ExPng.Chunks.ImageData do
   decoded by `ExPng`.
   """
 
+  use ExPng.Constants
+
+  alias ExPng.Image
+  import ExPng.Utilities, only: [reduce_to_binary: 1]
+
   @type t :: %__MODULE__{
     data: binary,
     type: :IDAT
@@ -49,31 +54,64 @@ defmodule ExPng.Chunks.ImageData do
     <<length::32>> <> type <> data <> <<crc::32>>
   end
 
-  def from_pixels(pixels) do
+  def from_pixels(image, header) do
+    palette = Image.unique_pixels(image)
     data =
-      Enum.map(pixels, fn line ->
-        Task.async(fn -> line_to_binary(line) end)
+      Enum.map(image.pixels, fn line ->
+        Task.async(fn -> line_to_binary(line, header, palette) end)
       end)
       |> Enum.map(fn task ->
         Task.await(task)
       end)
-      |> Enum.reverse()
-      |> Enum.reduce(&Kernel.<>/2)
+      |> reduce_to_binary()
 
-    %__MODULE__{data: data}
+    {%__MODULE__{data: data}, %ExPng.Chunks.Palette{palette: palette}}
   end
 
   ## PRIVATE
 
-  defp line_to_binary(line) do
-    Enum.reduce(line, <<0>>, fn pixel, acc ->
-      acc <> <<pixel.r, pixel.g, pixel.b, pixel.a>>
-    end)
+  defp line_to_binary(line, %{color_mode: @indexed} = header, palette) do
+    bit_depth = header.bit_depth
+    chunk_size = div(8, bit_depth)
+    line =
+      line
+      |> Enum.map(fn pixel -> Enum.find_index(palette, fn p -> p == pixel end) end)
+      |> Enum.map(fn i ->
+        Integer.to_string(i, 2)
+        |> String.pad_leading(bit_depth, "0")
+      end)
+      |> Enum.chunk_every(chunk_size, chunk_size)
+      |> Enum.map(fn byte ->
+        byte =
+          byte
+          |> Enum.join("")
+          |> String.pad_trailing(8, "0")
+          |> String.to_integer(2)
+        <<byte>>
+      end)
+      |> reduce_to_binary()
+    <<0>> <> line
   end
 
-  defp reduce_to_binary(chunks) do
-    Enum.reduce(chunks, <<>>, fn chunk, acc ->
-      acc <> chunk
+  defp line_to_binary(line, %{bit_depth: 1} = _header, _palette) do
+    line =
+      line
+      |> Enum.map(& div(&1.b, 255))
+      |> Enum.chunk_every(8)
+      |> Enum.map(fn bits -> Enum.join(bits, "") |> String.to_integer(2) end)
+      |> Enum.map(fn byte -> <<byte>> end)
+      |> reduce_to_binary()
+    <<0>> <> line
+  end
+
+  defp line_to_binary(line, %{bit_depth: 8} = header, _palette) do
+    Enum.reduce(line, <<0>>, fn pixel, acc ->
+      acc <> case header.color_mode do
+        @truecolor_alpha -> <<pixel.r, pixel.g, pixel.b, pixel.a>>
+        @truecolor -> <<pixel.r, pixel.g, pixel.b>>
+        @grayscale_alpha -> <<pixel.b, pixel.a>>
+        @grayscale -> <<pixel.b>>
+      end
     end)
   end
 
@@ -94,7 +132,6 @@ defmodule ExPng.Chunks.ImageData do
     :zlib.close(zstream)
     deflated_data
     |> List.flatten()
-    |> Enum.reverse()
-    |> Enum.reduce(&Kernel.<>/2)
+    |> reduce_to_binary()
   end
 end

@@ -61,6 +61,19 @@ defmodule ExPng.Pixel do
   """
   @spec white() :: __MODULE__.t()
   def white, do: grayscale(255)
+
+  @spec opaque?(__MODULE__.t()) :: boolean
+  def opaque?(%__MODULE__{a: 255}), do: true
+  def opaque?(_), do: false
+
+  @spec grayscale?(__MODULE__.t()) :: boolean
+  def grayscale?(%__MODULE__{r: gr, g: gr, b: gr}), do: true
+  def grayscale?(_), do: false
+
+  @spec black_or_white?(__MODULE__.t()) :: boolean
+  def black_or_white?(%__MODULE__{r: 0, g: 0, b: 0, a: 255}), do: true
+  def black_or_white?(%__MODULE__{r: 255, g: 255, b: 255, a: 255}), do: true
+  def black_or_white?(_), do: false
 end
 
 defimpl Inspect, for: ExPng.Pixel do

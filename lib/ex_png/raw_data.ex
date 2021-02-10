@@ -52,9 +52,15 @@ defmodule ExPng.RawData do
   def to_file(%__MODULE__{} = raw_data, filename, encoding_options \\ []) do
     image_data = ImageData.to_bytes(raw_data.data_chunk, encoding_options)
 
+    palette_data = case raw_data.palette_chunk do
+      nil -> ""
+      palette -> Palette.to_bytes(palette)
+    end
+
     data =
       @signature <>
         Header.to_bytes(raw_data.header_chunk) <>
+        palette_data <>
         image_data <>
         End.to_bytes(raw_data.end_chunk)
 

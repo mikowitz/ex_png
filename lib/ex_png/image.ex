@@ -77,6 +77,13 @@ defmodule ExPng.Image do
     end
   end
 
+  @spec unique_pixels(__MODULE__.t) :: integer()
+  def unique_pixels(%__MODULE__{pixels: pixels}) do
+    pixels
+    |> List.flatten()
+    |> Enum.uniq()
+  end
+
   defdelegate erase(image), to: Drawing
   defdelegate draw(image, coordinates, color), to: Drawing
   defdelegate at(image, coordinates), to: Drawing
