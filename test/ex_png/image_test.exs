@@ -5,26 +5,14 @@ defmodule ExPng.ImageTest do
   alias ExPng.{Image, Pixel}
 
   describe "round trip" do
-    test "for grayscale images" do
-      for file <- Path.wildcard("test/png_suite/basic/basn0g*.png") do
+    test "for non-interlaced images" do
+      for file <- Path.wildcard("test/png_suite/basic/basn*.png") do
         assert_round_trip(file)
       end
     end
 
-    test "for grayscale interlaced images" do
-      for file <- Path.wildcard("test/png_suite/basic/basi0g*.png") do
-        assert_round_trip(file)
-      end
-    end
-
-    test "for truecolor images" do
-      for file <- Path.wildcard("test/png_suite/basic/basn2c*.png") do
-        assert_round_trip(file)
-      end
-    end
-
-    test "for paletted images" do
-      for file <- Path.wildcard("test/png_suite/basic/basn3p*.png") do
+    test "for interlaced images" do
+      for file <- Path.wildcard("test/png_suite/basic/basi*.png") do
         assert_round_trip(file)
       end
     end
