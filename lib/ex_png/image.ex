@@ -80,7 +80,6 @@ defmodule ExPng.Image do
   @spec unique_pixels(__MODULE__.t) :: integer()
   def unique_pixels(%__MODULE__{pixels: pixels}) do
     pixels
-    # |> List.flatten()
     |> Enum.reduce([], fn l, acc -> acc ++ l end)
     |> Enum.uniq()
   end
