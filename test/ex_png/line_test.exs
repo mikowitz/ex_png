@@ -93,9 +93,7 @@ defmodule ExPng.Image.LineTest do
       with {:ok, canvas} <- ExPng.Image.from_file("test/png_suite/basic/basn0g01.png") do
         check_pixel_dimensions(canvas)
 
-        image = canvas.raw_data
-        line = Enum.at(image.lines, 0)
-        pixels = Line.to_pixels(line, image.header_chunk.bit_depth, image.header_chunk.color_mode)
+        pixels = Enum.at(canvas.pixels, 0)
         assert Enum.at(pixels, 0) == Pixel.white()
         assert Enum.at(pixels, -1) == Pixel.black()
       end
@@ -105,9 +103,7 @@ defmodule ExPng.Image.LineTest do
       with {:ok, canvas} <- ExPng.Image.from_file("test/png_suite/basic/basn0g02.png") do
         check_pixel_dimensions(canvas)
 
-        image = canvas.raw_data
-        line = Enum.at(image.lines, 0)
-        pixels = Line.to_pixels(line, image.header_chunk.bit_depth, image.header_chunk.color_mode)
+        pixels = Enum.at(canvas.pixels, 0)
         assert Enum.at(pixels, 0) == Pixel.black()
         assert Enum.at(pixels, 4) == Pixel.grayscale(85)
         assert Enum.at(pixels, 8) == Pixel.grayscale(170)
@@ -120,16 +116,13 @@ defmodule ExPng.Image.LineTest do
       with {:ok, canvas} <- ExPng.Image.from_file("test/png_suite/basic/basn0g04.png") do
         check_pixel_dimensions(canvas)
 
-        image = canvas.raw_data
-        line = Enum.at(image.lines, 0)
-        pixels = Line.to_pixels(line, image.header_chunk.bit_depth, image.header_chunk.color_mode)
+        pixels = Enum.at(canvas.pixels, 0)
         assert Enum.at(pixels, 0) == Pixel.black()
         assert Enum.at(pixels, 8) == Pixel.grayscale(34)
         assert Enum.at(pixels, 16) == Pixel.grayscale(68)
         assert Enum.at(pixels, 24) == Pixel.grayscale(102)
 
-        line = Enum.at(image.lines, -1)
-        pixels = Line.to_pixels(line, image.header_chunk.bit_depth, image.header_chunk.color_mode)
+        pixels = Enum.at(canvas.pixels, -1)
         assert Enum.at(pixels, 0) == Pixel.grayscale(119)
         assert Enum.at(pixels, 8) == Pixel.grayscale(153)
         assert Enum.at(pixels, 16) == Pixel.grayscale(187)
@@ -212,7 +205,7 @@ defmodule ExPng.Image.LineTest do
 
   defp check_pixel_dimensions(canvas) do
     image = canvas.raw_data
-    assert length(image.lines) == image.header_chunk.height
+    assert length(canvas.pixels) == image.header_chunk.height
 
     for pixels <- canvas.pixels do
       assert length(pixels) == image.header_chunk.width
