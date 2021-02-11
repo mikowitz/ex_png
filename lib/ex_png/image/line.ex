@@ -236,9 +236,9 @@ defmodule ExPng.Image.Line do
     prev_line = for <<pixel::bytes-size(pixel_size) <- prev_data>>, do: pixel
 
     x =
-      Enum.reduce(Enum.with_index(data), [pad], fn {byte, i}, [a_byte | _] = acc ->
-        b_byte = Enum.at(prev_line, i)
-        c_byte = if i == 0, do: pad, else: Enum.at(prev_line, i - 1)
+      Enum.chunk_every([pad|prev_line], 2, 1, :discard)
+      |> Enum.zip(data)
+      |> Enum.reduce([pad], fn {[c_byte, b_byte], byte}, [a_byte | _] = acc ->
 
         filtered_byte =
           Enum.reduce(0..(pixel_size - 1), <<>>, fn j, acc ->

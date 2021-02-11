@@ -20,7 +20,6 @@ defmodule ExPng.RawData do
     palette_chunk: Palette.t,
     ancillary_chunks: [Ancillary.t],
     end_chunk: End.t,
-    lines: [ExPng.Image.Line.t, ...]
   }
   defstruct [
     :header_chunk,
@@ -28,7 +27,6 @@ defmodule ExPng.RawData do
     :palette_chunk,
     :ancillary_chunks,
     :end_chunk,
-    :lines
   ]
 
   @doc false
