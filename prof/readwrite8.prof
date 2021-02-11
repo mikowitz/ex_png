@@ -1,0 +1,270 @@
+Compiling 1 file (.ex)
+Warmup...
+Reading trace data...
+End of trace!
+Processing data...
+Creating output...
+Done!
+
+                                                                   CNT    ACC (ms)    OWN (ms)
+Total                                                          2312077    4363.232    5327.330
+:proc_lib.init_p/5                                                 250   31603.146       9.090
+:suspend                                                          1828   30639.048       0.000
+:fprof.apply_start_stop/4                                            0    4363.232       0.009
+anonymous fn/0 in :elixir_compiler_1.__FILE__/1                      1    4363.219       0.004
+Enum.reduce/3                                                    63239    3696.833      70.307
+Enum."-reduce/3-lists^foldl/2-0-"/3                             186989    3695.458     932.488
+ExPng.Image.from_file/1                                              1    3135.038       0.005
+ExPng.Image.Decoding.from_raw_data/1                                 1    3133.575       0.006
+ExPng.Image.Decoding.filter_pass/2                                   1    2752.805       0.003
+anonymous fn/3 in ExPng.Image.Decoding.filter_pass/2               250    2752.252       0.533
+ExPng.Image.Line.filter_pass/3                                     494    2751.719       2.868
+ExPng.Image.to_file/2                                                1    1228.177       0.001
+ExPng.Image.to_file/3                                                1    1228.176       0.006
+ExPng.Image.Encoding.to_raw_data/1                                   1    1218.344       0.006
+anonymous fn/3 in ExPng.Image.Line.filter_pass/3                 60250    1218.063     191.071
+:proc_lib.init_p_do_apply/3                                        250    1041.114       2.496
+Task.Supervised.reply/4                                            250    1038.618       4.336
+Task.Supervised.reply/5                                            250    1017.216       3.841
+Task.Supervised.invoke_mfa/2                                       250     950.641       2.229
+:erlang.apply/2                                                    250     948.412       1.503
+anonymous fn/3 in ExPng.Chunks.ImageData.from_pixels/2             250     946.909       1.337
+ExPng.Chunks.ImageData.line_to_binary/3                            250     945.572       1.535
+Enum.reduce_range_inc/4                                         187482     919.085     340.394
+Enum.map/2                                                           4     849.927       0.005
+Enum."-map/2-lists^map/1-0-"/2                                     756     849.922       2.737
+ExPng.Chunks.ImageData.from_pixels/2                                 1     803.296       0.009
+ExPng.Image.unique_pixels/1                                          2     702.726       0.006
+Enumerable.reduce/3                                                485     643.787       1.041
+Enum.chunk_every/4                                                 241     641.366       0.243
+Stream.Reducers.chunk_every/5                                      241     641.121       0.485
+Enum."-fun.chunk_while/4-"/4                                       241     640.384       0.242
+Enum.chunk_while/4                                                 241     640.142       0.774
+Enumerable.List.reduce/3                                         60732     636.572     128.110
+anonymous fn/6 in ExPng.Image.Line.filter_pass/3                180750     570.821     383.115
+anonymous fn/3 in Enum.chunk_while/4                             60491     508.240     127.186
+anonymous fn/3 in ExPng.Chunks.ImageData.from_pixels/2             250     466.199       0.338
+Task.async/1                                                       250     465.861       0.325
+Task.async/3                                                       250     465.536       2.197
+Enum.uniq/1                                                          2     447.518       0.002
+Enum.uniq_by/2                                                       2     447.516       0.002
+Enum.uniq_list/3                                                125002     447.514     316.792
+ExPng.Image.Encoding.build_header/1                                  1     415.042       0.003
+ExPng.Image.Encoding.bit_depth_and_color_mode/1                      1     415.039       0.007
+anonymous fn/5 in Stream.Reducers.chunk_every/5                  60491     380.261     191.034
+anonymous fn/2 in ExPng.Image.Decoding.from_raw_data/1             250     378.967       0.500
+Task.Supervised.start_link/4                                       250     377.981       0.716
+:proc_lib.spawn_link/3                                             250     374.091       1.419
+:erlang.spawn_link/3                                               250     370.430     370.430
+anonymous fn/3 in ExPng.Chunks.ImageData.line_to_binary/3        62500     273.847     273.847
+Enum.take/2                                                      60744     259.947      66.284
+List.flatten/1                                                       2     255.202       0.003
+:lists.flatten/1                                                     2     255.199       0.002
+:lists.do_flatten/2                                             126002     255.197     254.973
+ExPng.Image.Line.to_pixels/4                                       250     252.635       0.250
+ExPng.Image.Line."-to_pixels/4-lc$^5/1-9-"/1                     62750     252.385     189.376
+Enum.take_list/2                                                123501     187.712     187.124
+ExPng.Image.Line.calculate_paeth_delta/3                        180750     182.657     182.313
+anonymous fn/4 in ExPng.Image.Line.filter_pass/3                   750     134.180       3.385
+anonymous fn/1 in Enum.uniq/1                                   125000     129.845     128.688
+ExPng.Image.Line."-filter_pass/3-lc$^10/1-3-"/2                  60491     127.858     126.688
+Enum.zip/2                                                         241     127.097       0.275
+Enum.zip_list/2                                                  60491     126.822     126.483
+ExPng.Image.Line."-filter_pass/3-lc$^11/1-4-"/2                  60491     126.231     125.348
+Enum.at/2                                                          751     121.719       0.906
+Enum.at/3                                                          751     120.813       1.700
+Enum.slice_any/3                                                   751     119.105       1.784
+Enum.drop_list/2                                                 94616     116.713     116.478
+Task.get_owner/1                                                   250      84.232       0.729
+Process.info/2                                                     250      83.503       1.090
+Range.new/2                                                      62494      64.151      63.271
+:lists.reverse/1                                                 60737      63.330      61.894
+:erlang.send/2                                                     500      63.134      63.122
+ExPng.Pixel.rgb/3                                                62500      62.920      62.798
+anonymous fn/2 in ExPng.Image.Line.filter_pass/3                 60250      61.095      60.795
+Enum.all?/2                                                          3      36.705       0.004
+Enum.all_list/2                                                   7384      36.701      28.472
+ExPng.Image.Encoding.opaque?/1                                       1      36.696       0.001
+anonymous fn/3 in ExPng.Image.Line.filter_pass/3                  1494      22.109       5.031
+:garbage_collect                                                  4339      19.398      19.398
+Enum.reduce/2                                                      274      16.249       0.313
+Enum."-reduce/2-lists^foldl/2-0-"/3                               2506      15.936       6.113
+Task.Supervised.initial_call/1                                     250      12.392       2.980
+ExPng.Image.Line.build_pad_for_filter/1                            244      10.751       0.807
+ExPng.RawData.to_file/3                                              1       9.826       0.032
+:zlib.dequeue_all_chunks/2                                           2       9.432       0.003
+:zlib.dequeue_all_chunks_1/3                                        39       9.429       0.329
+ExPng.Chunks.ImageData.to_bytes/2                                    1       9.330       0.033
+ExPng.Chunks.ImageData.deflate/2                                     1       9.188       0.016
+ExPng.Utilities.reduce_to_binary/1                                  44       9.012       0.226
+:zlib.deflate/3                                                      1       8.878       0.012
+:zlib.dequeue_next_chunk/2                                          39       8.473       0.089
+ExPng.Pixel.opaque?/1                                             7381       8.200       8.182
+:zlib."-fun.deflate_nif/4-"/4                                       27       7.878       0.073
+:zlib.deflate_nif/4                                                 27       7.805       7.795
+anonymous fn/2 in ExPng.Utilities.reduce_to_binary/1               250       7.574       2.314
+Process.put/2                                                      500       6.717       4.607
+Task.Supervised.get_initial_call/1                                 250       6.015       3.906
+anonymous fn/4 in ExPng.Image.Line.filter_pass/3                  4482       4.832       4.735
+:erlang.put/2                                                     1000       4.710       4.710
+Task.Supervised.put_callers/1                                      250       4.674       1.354
+Enumerable.Function.reduce/3                                       244       4.674       0.273
+anonymous fn/4 in Stream.unfold/2                                  244       4.401       0.272
+Stream.do_unfold/4                                                 976       4.129       2.641
+ExPng.Image.Line."-filter_pass/3-lc$^0/1-0-"/2                    1506       3.022       3.014
+anonymous fn/5 in ExPng.Image.Line.filter_pass/3                  2250       2.498       2.457
+:erlang.fun_info/2                                                 500       2.109       2.109
+anonymous fn/1 in ExPng.Chunks.ImageData.from_pixels/2             250       2.017       0.332
+:proc_lib.get_my_name/0                                            250       1.895       0.743
+:erlang.process_info/2                                             500       1.731       1.731
+ExPng.Image.Line."-filter_pass/3-lc$^5/1-1-"/2                     753       1.712       1.689
+anonymous fn/2 in ExPng.Image.Line.filter_pass/3                  1494       1.700       1.695
+Task.await/1                                                       250       1.685       0.348
+ExPng.Image.Line."-filter_pass/3-lc$^6/1-2-"/2                     753       1.613       1.589
+Enum.with_index/1                                                    3       1.605       0.003
+Enum.with_index/2                                                    3       1.602       0.006
+Enum.do_with_index/2                                               753       1.593       1.591
+:lists.reverse/2                                                   733       1.495       0.967
+Enumerable.impl_for!/1                                             485       1.489       1.001
+ExPng.RawData.from_file/1                                            1       1.458       0.006
+Task.await/2                                                       250       1.336       0.677
+:proc_lib.trans_init/3                                             250       1.227       1.227
+:proc_lib.proc_info/2                                              250       1.152       0.745
+ExPng.Image.Decoding.build_lines/1                                   1       1.031       0.002
+Enum.reverse/1                                                     270       1.022       0.554
+ExPng.Image.Decoding."-build_lines/1-lc$^0/1-0-"/2                 251       1.021       0.759
+ExPng.RawData.from_chunks/2                                          1       0.972       0.005
+anonymous fn/2 in ExPng.Image.Line.filter_pass/3                   750       0.788       0.787
+Enum.drop/2                                                        245       0.784       0.271
+ExPng.Chunks.ImageData.merge/1                                       1       0.783       0.005
+anonymous fn/1 in Stream.cycle/1                                   732       0.743       0.743
+anonymous fn/2 in Enum.take/2                                      732       0.742       0.741
+:erlang.demonitor/2                                                254       0.671       0.345
+ExPng.Chunks.ImageData.inflate/1                                     1       0.643       0.006
+:zlib.inflate/2                                                      1       0.614       0.001
+:zlib.inflate/3                                                      1       0.613       0.005
+Stream.cycle/1                                                     244       0.526       0.276
+anonymous fn/2 in ExPng.Image.Line.build_pad_for_filter/1          488       0.516       0.515
+:zlib."-fun.inflate_nif/4-"/4                                       12       0.506       0.013
+:zlib.inflate_nif/4                                                 12       0.493       0.493
+Enumerable.impl_for/1                                              485       0.486       0.486
+File.write/2                                                         1       0.440       0.003
+File.write/3                                                         1       0.437       0.008
+:file.write_file/3                                                   1       0.426       0.008
+:file.do_write_file/3                                                1       0.415       0.006
+:erlang.monitor/2                                                  254       0.391       0.391
+ExPng.RawData.parse_chunks/2                                        11       0.348       0.043
+:proc_lib.get_ancestors/0                                          250       0.347       0.347
+Task.get_callers/1                                                 250       0.342       0.342
+:erlang.crc32/1                                                     14       0.336       0.123
+:erts_internal.flush_monitor_messages/3                            251       0.326       0.326
+:file.call/2                                                         2       0.288       0.012
+ExPng.RawData.validate_crc/3                                        11       0.276       0.024
+:gen_server.call/3                                                   2       0.273       0.007
+:gen.call/4                                                          2       0.266       0.005
+:gen.do_for_proc/2                                                   2       0.261       0.009
+:erlang.max/2                                                      241       0.251       0.243
+ExPng.Image.Line.new/2                                             250       0.250       0.250
+Stream.unfold/2                                                    244       0.249       0.248
+anonymous fn/4 in :gen.call/4                                        2       0.248       0.004
+anonymous fn/3 in Stream.Reducers.chunk_every/5                    241       0.247       0.245
+:gen.do_call/4                                                       2       0.244       0.031
+:file.open/2                                                         1       0.217       0.012
+File.read/1                                                          1       0.112       0.004
+:file.read_file/1                                                    1       0.106       0.005
+:file.write/2                                                        1       0.100       0.006
+:file.check_and_call/2                                               1       0.100       0.003
+:io.request/2                                                        1       0.093       0.004
+:file.close/1                                                        1       0.092       0.004
+:file.file_request/2                                                 1       0.088       0.010
+:io.execute_request/2                                                1       0.087       0.008
+:zlib.append_iolist/2                                               41       0.069       0.069
+:zlib.deflateInit/2                                                  1       0.066       0.002
+:zlib.deflateInit/6                                                  1       0.064       0.015
+ExPng.RawData.find_end/1                                             1       0.063       0.003
+Enum.reject/2                                                        2       0.063       0.002
+ExPng.RawData.find_image_data/1                                      1       0.061       0.002
+Enum.reject_list/2                                                  17       0.061       0.046
+ExPng.RawData.find_palette/2                                         1       0.060       0.003
+Enum.split_with/2                                                    1       0.059       0.004
+ExPng.RawData.find_chunk/2                                           2       0.054       0.002
+Enum.find/2                                                          2       0.052       0.002
+Enum."-split_with/2-lists^foldl/2-0-"/3                             11       0.051       0.021
+Enum.find/3                                                          2       0.050       0.002
+Enum.find_list/3                                                    16       0.048       0.031
+:zlib.deflateInit_nif/6                                              1       0.043       0.034
+ExPng.Chunks.from_type/2                                            11       0.030       0.012
+anonymous fn/3 in Enum.split_with/2                                 10       0.030       0.020
+:zlib.enqueue_input/2                                                2       0.020       0.006
+ExPng.RawData.parse_ihdr/1                                           1       0.020       0.005
+Keyword.get/3                                                        1       0.019       0.004
+anonymous fn/2 in ExPng.RawData.find_chunk/2                        15       0.017       0.016
+:zlib.open/0                                                         2       0.016       0.003
+ExPng.Chunks.Header.to_bytes/1                                       1       0.016       0.002
+:lists.keyfind/3                                                     1       0.015       0.006
+:erlang.send/3                                                       2       0.014       0.014
+ExPng.Chunks.Header.to_bytes/2                                       1       0.014       0.011
+:zlib.open_nif/0                                                     2       0.013       0.013
+:zlib.enqueue_input_1/2                                              2       0.011       0.005
+:file.check_args/1                                                   6       0.011       0.011
+:erlang.binary_to_atom/2                                            10       0.011       0.011
+:zlib.inflateEnd/1                                                   1       0.010       0.001
+anonymous fn/1 in ExPng.RawData.find_image_data/1                   10       0.010       0.010
+:zlib.inflateInit/1                                                  1       0.009       0.002
+:zlib.inflateEnd_nif/1                                               1       0.009       0.009
+:zlib.deflateEnd/1                                                   1       0.009       0.003
+:zlib.restore_progress/2                                             2       0.008       0.005
+anonymous fn/2 in ExPng.RawData.find_end/1                           8       0.008       0.008
+ExPng.Color.line_bytesize/1                                          1       0.008       0.002
+ExPng.Chunks.Header.new/2                                            1       0.008       0.006
+ExPng.Chunks.End.to_bytes/1                                          1       0.008       0.002
+:zlib.inflateInit/2                                                  1       0.007       0.001
+:zlib.exception_on_need_dict/2                                       1       0.007       0.003
+anonymous fn/2 in ExPng.RawData.find_palette/2                       7       0.007       0.007
+ExPng.Image.Encoding.grayscale?/1                                    1       0.007       0.001
+ExPng.Color.pixel_bytesize/1                                         1       0.007       0.001
+ExPng.Chunks.Ancillary.new/2                                         7       0.007       0.007
+:zlib.inflateInit/3                                                  1       0.006       0.003
+:zlib.enqueue_nif/2                                                  2       0.006       0.006
+:zlib.deflateEnd_nif/1                                               1       0.006       0.006
+:zlib.close/1                                                        2       0.006       0.003
+ExPng.Color.pixel_bytesize/2                                         1       0.006       0.002
+ExPng.Color.pixel_bitsize/2                                          2       0.006       0.004
+ExPng.Color.line_bytesize/3                                          1       0.006       0.002
+ExPng.Chunks.End.to_bytes/2                                          1       0.006       0.005
+:zlib.deflate_opts/1                                                 1       0.005       0.003
+ExPng.Image.Encoding.black_and_white?/1                              1       0.005       0.001
+:lists.member/2                                                      3       0.004       0.004
+:fprof."-apply_start_stop/4-after$^1/0-0-"/3                         1       0.004       0.004
+:erlang.whereis/1                                                    2       0.004       0.004
+:zlib.inflate_opts/0                                                 1       0.003       0.002
+:zlib.getStash_nif/1                                                 2       0.003       0.003
+:zlib.close_nif/1                                                    2       0.003       0.003
+:zlib.arg_flush/1                                                    2       0.003       0.003
+:erlang.list_to_tuple/1                                              2       0.003       0.003
+:erlang.iolist_to_iovec/1                                            2       0.003       0.003
+IO.chardata_to_string/1                                              2       0.003       0.003
+Enum.to_list/1                                                       3       0.003       0.003
+:zlib.arg_strategy/1                                                 1       0.002       0.002
+:zlib.arg_bitsz/1                                                    2       0.002       0.002
+:io.io_request/2                                                     1       0.002       0.002
+:file.make_binary/1                                                  2       0.002       0.002
+:file.file_name/1                                                    2       0.002       0.002
+File.normalize_modes/2                                               1       0.002       0.002
+ExPng.Color.to_bytesize/1                                            2       0.002       0.002
+ExPng.Color.channels_for_color_mode/1                                2       0.002       0.002
+ExPng.Chunks.ImageData.new/2                                         2       0.002       0.002
+anonymous fn/1 in ExPng.Chunks.ImageData.merge/1                     2       0.002       0.002
+ExPng.Chunks.Header.validate_color_mode/1                            2       0.002       0.002
+ExPng.Chunks.Header.validate_bit_depth/1                             2       0.002       0.002
+:zlib.proplist_get_value/3                                           1       0.001       0.001
+:zlib.inflateInit_nif/3                                              1       0.001       0.001
+:zlib.arg_method/1                                                   1       0.001       0.001
+:zlib.arg_mem/1                                                      1       0.001       0.001
+:zlib.arg_level/1                                                    1       0.001       0.001
+:zlib.arg_eos_behavior/1                                             1       0.001       0.001
+ExPng.Pixel.grayscale?/1                                             1       0.001       0.001
+ExPng.Pixel.black_or_white?/1                                        1       0.001       0.001
+ExPng.Image.Encoding.indexable?/1                                    1       0.001       0.001
+ExPng.Chunks.End.new/2                                               1       0.001       0.001
+:undefined                                                           0       0.000       0.000

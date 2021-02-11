@@ -49,21 +49,22 @@ defmodule ExPng.Image.Encoding do
   # 3. indexed
   # 4. truecolor (alpha)
   defp bit_depth_and_color_mode(%Image{} = image) do
-    case black_and_white?(image) do
+    pixels = Image.unique_pixels(image)
+    case black_and_white?(pixels) do
       true -> {1, @grayscale}
       false ->
-        case {indexable?(image), opaque?(image), grayscale?(image)} do
+        case {indexable?(pixels), opaque?(pixels), grayscale?(pixels)} do
           {_, true, true} -> {8, @grayscale}
           {_, false, true} -> {8, @grayscale_alpha}
-          {true, _, _} -> {indexed_bit_depth(image), @indexed}
+          {true, _, _} -> {indexed_bit_depth(pixels), @indexed}
           {_, true, false} -> {8, @truecolor}
           {_, false, false} -> {8, @truecolor_alpha}
         end
     end
   end
 
-  defp indexed_bit_depth(%Image{} = image) do
-    case unique_pixel_count(image) do
+  defp indexed_bit_depth(pixels) do
+    case length(pixels) do
       i when i <= 2 -> 1
       i when i <= 4 -> 2
       i when i <= 16 -> 4
@@ -71,33 +72,22 @@ defmodule ExPng.Image.Encoding do
     end
   end
 
-  defp indexable?(%Image{} = image) do
-    image
-    |> unique_pixel_count()
-    |> Kernel.<=(256)
+  defp indexable?(pixels) do
+    length(pixels) <= 256
   end
 
-  defp unique_pixel_count(%Image{} = image) do
-    image
-    |> Image.unique_pixels()
-    |> length()
-  end
-
-  defp opaque?(%Image{pixels: pixels}) do
+  defp opaque?(pixels) do
     pixels
-    |> List.flatten()
     |> Enum.all?(&Pixel.opaque?/1)
   end
 
-  defp grayscale?(%Image{pixels: pixels}) do
+  defp grayscale?(pixels) do
     pixels
-    |> List.flatten()
     |> Enum.all?(&Pixel.grayscale?/1)
   end
 
-  defp black_and_white?(%Image{pixels: pixels}) do
+  defp black_and_white?(pixels) do
     pixels
-    |> List.flatten()
     |> Enum.all?(&Pixel.black_or_white?/1)
   end
 end

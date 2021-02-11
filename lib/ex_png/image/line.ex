@@ -33,6 +33,8 @@ defmodule ExPng.Image.Line do
   use Bitwise
   use ExPng.Constants
 
+  import ExPng.Utilities, only: [reduce_to_binary: 1]
+
   alias ExPng.Pixel
 
 
@@ -214,9 +216,7 @@ defmodule ExPng.Image.Line do
       end)
       |> Enum.reverse()
       |> Enum.drop(1)
-      |> Enum.reduce(<<>>, fn c, acc ->
-        acc <> c
-      end)
+      |> reduce_to_binary()
 
     %{line | data: x}
   end
@@ -254,7 +254,7 @@ defmodule ExPng.Image.Line do
       end)
       |> Enum.reverse()
       |> Enum.drop(1)
-      |> Enum.reduce(<<>>, fn c, acc -> acc <> c end)
+      |> reduce_to_binary()
 
     %{line | data: x}
   end
