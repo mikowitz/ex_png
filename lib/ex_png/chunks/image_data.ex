@@ -36,7 +36,6 @@ defmodule ExPng.Chunks.ImageData do
       |> Enum.map(& &1.data)
       |> reduce_to_binary()
       |> inflate()
-      |> List.flatten()
       |> reduce_to_binary()
 
     %ExPng.Chunks.ImageData{data: data}
@@ -131,7 +130,6 @@ defmodule ExPng.Chunks.ImageData do
     :zlib.deflateEnd(zstream)
     :zlib.close(zstream)
     deflated_data
-    |> List.flatten()
     |> reduce_to_binary()
   end
 end
