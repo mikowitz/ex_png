@@ -1,7 +1,9 @@
 defmodule ExPng.Image.PixelationTest do
   use ExUnit.Case
+  use ExPng.Constants
 
   alias ExPng.Pixel
+  alias ExPng.Image.Pixelation
 
   describe "to_pixels" do
     test "it returns the correct pixels for a 1bit grayscale image" do
@@ -115,6 +117,55 @@ defmodule ExPng.Image.PixelationTest do
       with {:ok, image} <- ExPng.Image.from_file("test/png_suite/basic/basn6a16.png") do
         check_pixel_dimensions(image)
       end
+    end
+  end
+
+  describe "from_pixels" do
+    setup do
+      pixels = [
+        Pixel.black(), Pixel.white(),
+        Pixel.rgb(10, 20, 30), Pixel.rgba(10, 20, 255, 40),
+        Pixel.grayscale(80), Pixel.grayscale(40, 60)
+      ]
+      {:ok, pixels: pixels}
+    end
+
+    test "grayscale, bit depth 1", context do
+      assert Pixelation.from_pixels(context.pixels, 1, @grayscale) == <<80>>
+    end
+
+    test "grayscale, bit depth 8", context do
+      assert Pixelation.from_pixels(context.pixels, 8, @grayscale) ==
+        <<0, 255, 30, 255, 80, 40>>
+    end
+
+    test "indexed, bit_depth 4", context do
+      palette = Enum.sort(context.pixels)
+      assert Pixelation.from_pixels(context.pixels, 4, @indexed, palette) ==
+        <<37, 48, 65>>
+    end
+
+    test "indexed, bit_depth 8", context do
+      palette = Enum.sort(context.pixels)
+      assert Pixelation.from_pixels(context.pixels, 8, @indexed, palette) ==
+      <<2, 5, 3, 0, 4, 1>>
+    end
+
+    test "grayscale alpha, bit depth 8", context do
+      assert Pixelation.from_pixels(context.pixels, 8, @grayscale_alpha) ==
+        <<0, 255, 255, 255, 30, 255, 255, 40, 80, 255, 40, 60>>
+    end
+
+    test "truecolor, bit depth 8", context do
+      assert Pixelation.from_pixels(context.pixels, 8, @truecolor) ==
+        <<0, 0, 0, 255, 255, 255, 10, 20, 30, 10, 20, 255, 80, 80, 80, 40, 40, 40>>
+    end
+
+    test "truecolor alpha, bit depth 8", context do
+      assert Pixelation.from_pixels(context.pixels, 8, @truecolor_alpha) ==
+        <<0, 0, 0, 255, 255, 255, 255, 255,
+        10, 20, 30, 255, 10, 20, 255, 40,
+        80, 80, 80, 255, 40, 40, 40, 60>>
     end
   end
 
