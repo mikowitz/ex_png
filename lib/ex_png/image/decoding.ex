@@ -6,7 +6,7 @@ defmodule ExPng.Image.Decoding do
 
   use ExPng.Constants
 
-  alias ExPng.{Color, Image, Image.Adam7, Image.Line, RawData}
+  alias ExPng.{Color, Image, Image.Adam7, Image.Filtering, Image.Pixelation, RawData}
 
   def from_raw_data(%RawData{header_chunk: %{interlace: 1}} = data) do
     %{width: width, height: height} = data.header_chunk
@@ -24,12 +24,12 @@ defmodule ExPng.Image.Decoding do
     lines =
       data
       |> build_lines()
-      |> filter_pass(Color.pixel_bytesize(data))
+      |> unfilter(Color.pixel_bytesize(data))
 
     pixels =
       lines
       |> Enum.map(fn line ->
-        Line.to_pixels(
+        Pixelation.to_pixels(
           line,
           data.header_chunk.bit_depth,
           data.header_chunk.color_mode,
@@ -47,17 +47,13 @@ defmodule ExPng.Image.Decoding do
 
   defp build_lines(%RawData{data_chunk: data} = image) do
     with line_size <- Color.line_bytesize(image) do
-      lines =
-        for <<f, line::bytes-size(line_size) <- data.data>> do
-          Line.new(f, line)
-        end
-      lines
+      for <<f, line::bytes-size(line_size) <- data.data>>, do: {f, line}
     end
   end
 
-  def filter_pass(lines, pixel_size) do
+  def unfilter(lines, pixel_size) do
     Enum.reduce(lines, [nil], fn line, [prev | _] = acc ->
-      new_line = Line.filter_pass(line, pixel_size, prev)
+      new_line = Filtering.unfilter(line, pixel_size, prev)
       [new_line | acc]
     end)
     |> Enum.reverse()
