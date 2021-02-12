@@ -8,6 +8,8 @@ defmodule ExPng.Image.Pixelation do
 
   alias ExPng.Pixel
 
+  import ExPng.Utilities, only: [reduce_to_binary: 1]
+
   @doc """
   Parses a de-filtered line of pixel data into a list of `ExPng.Pixel` structs
   based on the bit depth and color mode of the image. For images that use the
@@ -90,5 +92,56 @@ defmodule ExPng.Image.Pixelation do
 
   def to_pixels(data, 16, @truecolor_alpha, _) do
     for <<r, _, g, _, b, _, a, _ <- data>>, do: Pixel.rgba(r, g, b, a)
+  end
+
+  ## from_pixels
+
+  def from_pixels(pixels, bit_depth, color_mode, palette \\ nil)
+  def from_pixels(pixels, 1, @grayscale, _) do
+    pixels
+    |> Enum.map(& div(&1.b, 255))
+    |> Enum.chunk_every(8)
+    |> Enum.map(fn bits ->
+      <<
+        bits
+        |> Enum.join("")
+        |> String.pad_trailing(8, "0")
+        |> String.to_integer(2)
+      >>
+    end)
+    |> reduce_to_binary()
+  end
+
+  def from_pixels(pixels, bit_depth, @indexed, palette) do
+    chunk_size = div(8, bit_depth)
+    pixels
+    |> Enum.map(fn pixel -> Enum.find_index(palette, fn p -> p == pixel end) end)
+    |> Enum.map(fn i ->
+      Integer.to_string(i, 2)
+      |> String.pad_leading(bit_depth, "0")
+    end)
+    |> Enum.chunk_every(chunk_size, chunk_size)
+    |> Enum.map(fn byte ->
+      byte =
+        byte
+        |> Enum.join("")
+        |> String.pad_trailing(8, "0")
+        |> String.to_integer(2)
+      <<byte>>
+    end)
+    |> reduce_to_binary()
+  end
+
+  def from_pixels(pixels, 8, color_mode, _) do
+    pixels
+    |> Enum.map(fn pixel ->
+      case color_mode do
+        @grayscale -> <<pixel.b>>
+        @grayscale_alpha -> <<pixel.b, pixel.a>>
+        @truecolor -> <<pixel.r, pixel.g, pixel.b>>
+        @truecolor_alpha -> <<pixel.r, pixel.g, pixel.b, pixel.a>>
+      end
+    end)
+    |> reduce_to_binary()
   end
 end

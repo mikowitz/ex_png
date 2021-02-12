@@ -18,7 +18,7 @@ defmodule ExPng.Chunks.ImageDataTest do
   describe "from_pixels" do
     test "grayscale, bit depth 1", context  do
       {image_data, _} = image_data_from_pixels(context.image, 1, @grayscale)
-      assert image_data.data == <<0, 2, 0, 1>>
+      assert image_data.data == <<0, 128, 0, 64>>
     end
 
     test "grayscale, bit depth 8", context do
