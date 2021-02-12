@@ -2,7 +2,7 @@ defmodule ExPng.Image.Adam7 do
   @moduledoc false
 
   use Bitwise
-  alias ExPng.{Color, Image, Image.Decoding, Image.Line, RawData}
+  alias ExPng.{Color, Image, Image.Decoding, Image.Pixelation, RawData}
 
   @pass_shifts_and_offsets [
     [3, 0, 3, 0],
@@ -38,14 +38,14 @@ defmodule ExPng.Image.Adam7 do
       if w * h > 0 do
         {pos, pass_lines, data} = Enum.reduce(1..h, {pos, [], data}, fn _, {pos, lines, data} ->
           <<f, line::bytes-size(line_length), data::binary>> = data
-          line = Line.new(f, line)
+          line = {f, line}
           {pos + line_length + 1, [line|lines], data}
         end)
         pixels =
           pass_lines
           |> Enum.reverse()
-          |> Decoding.filter_pass(pixel_size)
-          |> Enum.map(& Line.to_pixels(&1, bit_depth, color_mode, palette) |> Enum.take(w))
+          |> Decoding.unfilter(pixel_size)
+          |> Enum.map(& Pixelation.to_pixels(&1, bit_depth, color_mode, palette) |> Enum.take(w))
         {pos, [pixels|lines], data}
       else
         {pos, lines, data}
