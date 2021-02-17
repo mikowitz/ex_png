@@ -11,7 +11,7 @@ defmodule ExPng.Chunks.ImageData do
   use ExPng.Constants
 
   alias ExPng.Image
-  alias ExPng.Image.Pixelation
+  alias ExPng.Image.{Filtering, Pixelation}
 
   import ExPng.Utilities, only: [reduce_to_binary: 1]
 
@@ -55,23 +55,37 @@ defmodule ExPng.Chunks.ImageData do
     <<length::32>> <> type <> data <> <<crc::32>>
   end
 
-  def from_pixels(image, header) do
+  def from_pixels(image, header, filter_type \\ @filter_none) do
     palette = Image.unique_pixels(image)
-    data =
+    lines =
       Enum.map(image.pixels, fn line ->
         Task.async(fn ->
-          <<0>> <> Pixelation.from_pixels(line, header.bit_depth, header.color_mode, palette)
+          Pixelation.from_pixels(line, header.bit_depth, header.color_mode, palette)
         end)
       end)
       |> Enum.map(fn task ->
         Task.await(task)
       end)
-      |> reduce_to_binary()
+
+    pixel_size = ExPng.Color.pixel_bytesize(header.color_mode, header.bit_depth)
+    data = apply_filter(lines, pixel_size, filter_type)
 
     {%__MODULE__{data: data}, %ExPng.Chunks.Palette{palette: palette}}
   end
 
   ## PRIVATE
+
+  defp apply_filter([head|_] = lines, pixel_size, filter_type) do
+    pad =
+      Stream.cycle([<<0>>])
+      |> Enum.take(byte_size(head))
+      |> Enum.reduce(&Kernel.<>/2)
+
+    Enum.chunk_every([pad|lines], 2, 1, :discard)
+    |> Enum.map(fn [prev, line] -> Filtering.apply_filter({filter_type, line}, pixel_size, prev) end)
+    |> Enum.map(fn line -> <<filter_type>> <> line end)
+    |> reduce_to_binary()
+  end
 
   defp inflate(data) do
     zstream = :zlib.open()
