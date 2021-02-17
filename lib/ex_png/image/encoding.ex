@@ -9,9 +9,10 @@ defmodule ExPng.Image.Encoding do
   alias ExPng.Chunks.{End, Header, ImageData}
   alias ExPng.{Image, Pixel, RawData}
 
-  def to_raw_data(%Image{} = image) do
+  def to_raw_data(%Image{} = image, encoding_options \\ []) do
     header = build_header(image)
-    {image_data_chunk, palette} = ImageData.from_pixels(image, header)
+    filter_type = Keyword.get(encoding_options, :filter, @filter_none)
+    {image_data_chunk, palette} = ImageData.from_pixels(image, header, filter_type)
 
     raw_data =
       %RawData{

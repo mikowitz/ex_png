@@ -50,13 +50,22 @@ defmodule ExPng.Chunks.ImageDataTest do
           0, 100, 200, 100, 100, 100, 200, 255, 255
         >>
     end
+
+    test "truecolor, bit depth 8, filter sub", context do
+      {image_data, _} = image_data_from_pixels(context.image, 8, @truecolor, @filter_sub)
+      assert image_data.data ==
+        <<
+          1, 255, 255, 255, 1, 1, 1,
+          1, 100, 200, 100, 0, 0, 155
+        >>
+    end
   end
 
-  defp image_data_from_pixels(image, bit_depth, color_mode) do
+  defp image_data_from_pixels(image, bit_depth, color_mode, filter_type \\ @filter_none) do
     header = %Header{
       bit_depth: bit_depth,
       color_mode: color_mode
     }
-    ImageData.from_pixels(image, header)
+    ImageData.from_pixels(image, header, filter_type)
   end
 end

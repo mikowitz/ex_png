@@ -71,7 +71,7 @@ defmodule ExPng.Image do
 
   @spec to_file(__MODULE__.t, filename, keyword | nil) :: {:ok, filename}
   def to_file(%__MODULE__{} = image, filename, encoding_options \\ []) do
-    with {:ok, raw_data} <- Encoding.to_raw_data(image) do
+    with {:ok, raw_data} <- Encoding.to_raw_data(image, encoding_options) do
       RawData.to_file(raw_data, filename, encoding_options)
       {:ok, filename}
     end

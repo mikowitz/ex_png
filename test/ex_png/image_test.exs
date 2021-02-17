@@ -104,9 +104,11 @@ defmodule ExPng.ImageTest do
 
   defp assert_round_trip(filename) do
     {:ok, image} = Image.from_file(filename)
-    {:ok, _} = Image.to_file(image, "experiment.png")
-    {:ok, read_image} = Image.from_file("experiment.png")
-    assert image.pixels == read_image.pixels
+    for filter <- [@filter_none, @filter_sub, @filter_up, @filter_average, @filter_paeth] do
+      {:ok, _} = Image.to_file(image, "experiment.png", filter: filter)
+      {:ok, read_image} = Image.from_file("experiment.png")
+      assert image.pixels == read_image.pixels
+    end
     :ok = File.rm("experiment.png")
   end
 end
