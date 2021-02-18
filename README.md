@@ -75,9 +75,20 @@ Images can be saved via
 
     ExPng.Image.to_file(image, filename)
 
-Right now all saved images use 8 bit depth and the truecolor color mode. Additional
-options to configure exporting images will be added in future releases. (See
-[Issue #11][i11])
+When encoding images, `ExPng` will attempt to find the optimal bit depth and
+color mode for the image in the following priority order:
+
+1. pure black and white images
+2. grayscale images, with or without transparency
+3. color images where the number of unique colors is indexable
+4. truecolor images with too many colors to index, with or without transparency
+
+Filter type and compression level can both be set when saving an image:
+
+    ExPng.Image.to_file(image, filename, filter: ExPng.Filtering.up, compression: 9)
+
+
+
 
 ## Documentation
 
