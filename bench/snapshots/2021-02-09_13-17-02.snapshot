@@ -1,6 +1,0 @@
-duration:1.0;mem stats:false;sys mem stats:false
-module;test;tags;iterations;elapsed
-ReadBench	read larger image		1	5284349
-ReadBench	read smaller image		2	1952419
-WriteBench	write larger image		2	1259516
-WriteBench	write smaller image		10	1025202

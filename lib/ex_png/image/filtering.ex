@@ -11,6 +11,12 @@ defmodule ExPng.Image.Filtering do
 
   @type filtered_line :: {ExPng.filter, binary}
 
+  def none, do: @filter_none
+  def sub, do: @filter_sub
+  def up, do: @filter_up
+  def average, do: @filter_average
+  def paeth, do: @filter_paeth
+
   @doc """
   Passes a line of filtered pixel data through a filtering algorithm based on its filter type, and returns the unfiltered original data.
   """
