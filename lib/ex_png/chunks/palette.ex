@@ -15,7 +15,7 @@ defmodule ExPng.Chunks.Palette do
   }
   defstruct [:data, :palette, type: :PLTE]
 
-  @spec new(:PLTE, binary) :: __MODULE__.t
+  @spec new(:PLTE, binary) :: {:ok, __MODULE__.t}
   def new(:PLTE, data) do
     with palette <- parse_palette(data) do
       {:ok, %__MODULE__{data: data, palette: palette}}
