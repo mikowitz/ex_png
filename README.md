@@ -85,10 +85,15 @@ color mode for the image in the following priority order:
 
 Filter type and compression level can both be set when saving an image:
 
-    ExPng.Image.to_file(image, filename, filter: ExPng.Filtering.up, compression: 9)
+    ExPng.Image.to_file(image, filename, filter: :sub, compression: 9)
 
+Valid values for compression are integers 0 (no compression) through 9 (max compression).
 
+Valid filter values are `:none`, `:up`, `:sub`, `:average`, and `:paeth`, which
+can also be represented, respectively, by integers 0-5.
 
+By default, `ExPng` uses the `up` filter, and the default `zlib` compression
+level 6.
 
 ## Documentation
 
