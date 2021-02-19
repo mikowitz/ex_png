@@ -6,11 +6,10 @@ defmodule ExPng.Image.Decoding do
 
   use ExPng.Constants
 
-  alias ExPng.{Color, Image, Image.Adam7, Image.Filtering, Image.Pixelation, RawData}
+  alias ExPng.{Image, Image.Adam7, Image.Filtering, Image.Pixelation, Pixel, RawData}
 
   def from_raw_data(%RawData{header_chunk: %{interlace: 1}} = data) do
     %{width: width, height: height} = data.header_chunk
-
 
     image = Image.new(width, height)
     image =
@@ -24,7 +23,7 @@ defmodule ExPng.Image.Decoding do
     lines =
       data
       |> build_lines()
-      |> unfilter(Color.pixel_bytesize(data))
+      |> unfilter(Pixel.pixel_bytesize(data))
 
     pixels =
       lines
@@ -46,7 +45,7 @@ defmodule ExPng.Image.Decoding do
   end
 
   defp build_lines(%RawData{data_chunk: data} = image) do
-    with line_size <- Color.line_bytesize(image) do
+    with line_size <- Pixel.line_bytesize(image) do
       for <<f, line::bytes-size(line_size) <- data.data>>, do: {f, line}
     end
   end

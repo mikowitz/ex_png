@@ -10,7 +10,7 @@ defmodule ExPng.Chunks.ImageData do
 
   use ExPng.Constants
 
-  alias ExPng.Image
+  alias ExPng.{Image, Pixel}
   alias ExPng.Image.{Filtering, Pixelation}
 
   import ExPng.Utilities, only: [reduce_to_binary: 1]
@@ -67,7 +67,7 @@ defmodule ExPng.Chunks.ImageData do
         Task.await(task)
       end)
 
-    pixel_size = ExPng.Color.pixel_bytesize(header.color_mode, header.bit_depth)
+    pixel_size = Pixel.pixel_bytesize(header.color_mode, header.bit_depth)
     data = apply_filter(lines, pixel_size, filter_type)
 
     {%__MODULE__{data: data}, %ExPng.Chunks.Palette{palette: palette}}
