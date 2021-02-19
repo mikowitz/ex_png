@@ -22,8 +22,8 @@ defmodule ExPng.Chunks.Header do
   """
 
   @type t :: %__MODULE__{
-    width: integer,
-    height: integer,
+    width: pos_integer,
+    height: pos_integer,
     bit_depth: ExPng.bit_depth,
     color_mode: ExPng.color_mode,
     compression: 0,
@@ -42,7 +42,7 @@ defmodule ExPng.Chunks.Header do
     type: :IHDR
   ]
 
-  @spec new(:IHDR, <<_::25>>) :: __MODULE__.t
+  @spec new(:IHDR, <<_::104>>) :: {:ok, __MODULE__.t} | {:error, binary, binary}
   def new(:IHDR, <<w::32, h::32, bd, ct, cmp, fltr, intlc>> = data) do
     with {:ok, bit_depth} <- validate_bit_depth(bd),
          {:ok, color_mode} <- validate_color_mode(ct) do

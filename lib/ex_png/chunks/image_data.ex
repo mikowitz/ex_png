@@ -21,7 +21,7 @@ defmodule ExPng.Chunks.ImageData do
   }
   defstruct [:data, type: :IDAT]
 
-  @spec new(:IDAT, binary) :: __MODULE__.t
+  @spec new(:IDAT, binary) :: {:ok, __MODULE__.t}
   def new(:IDAT, data) do
     image_data =
       data

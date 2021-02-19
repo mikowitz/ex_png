@@ -30,7 +30,8 @@ defmodule ExPng.Image.Drawing do
   """
   @spec clear(Image.t, coordinate_pair) :: Image.t
   def clear(%Image{} = image, {_, _} = coordinates) do
-    pop_in(image, [coordinates])
+    {nil, image} = pop_in(image, [coordinates])
+    image
   end
 
   @doc """

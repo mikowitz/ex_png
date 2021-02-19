@@ -5,15 +5,15 @@ defmodule ExPng.Image do
   """
 
   alias ExPng.Image.{Decoding, Drawing, Encoding}
-  alias ExPng.RawData
+  alias ExPng.{Pixel, RawData}
 
-  @type row :: [ExPng.Pixel.t, ...]
+  @type row :: [Pixel.t, ...]
   @type canvas :: [row, ...]
   @type t :: %__MODULE__{
-    pixels: canvas,
-    raw_data: ExPng.RawData.t,
-    height: integer(),
-    width: integer()
+    pixels: canvas | nil,
+    raw_data: ExPng.RawData.t | nil,
+    height: pos_integer(),
+    width: pos_integer()
   }
   @type filename :: String.t
   @type success :: {:ok, __MODULE__.t}
@@ -29,7 +29,7 @@ defmodule ExPng.Image do
   @doc """
   Returns a blank (opaque white) image with the provided width and height
   """
-  @spec new(integer, integer) :: __MODULE__.t
+  @spec new(pos_integer, pos_integer) :: __MODULE__.t
   def new(width, height) do
     %__MODULE__{
       width: width,
@@ -77,7 +77,7 @@ defmodule ExPng.Image do
     end
   end
 
-  @spec unique_pixels(__MODULE__.t) :: integer()
+  @spec unique_pixels(__MODULE__.t) :: [Pixel.t]
   def unique_pixels(%__MODULE__{pixels: pixels}) do
     pixels
     |> Enum.reduce([], fn l, acc -> acc ++ l end)
@@ -129,7 +129,7 @@ defmodule ExPng.Image do
 
   @impl true
   def pop(%__MODULE__{} = image, {x, y}) do
-    update_in(image, [{x, y}], fn _ -> ExPng.Pixel.white() end)
+    {nil, update_in(image, [{x, y}], fn _ -> ExPng.Pixel.white() end)}
   end
 end
 

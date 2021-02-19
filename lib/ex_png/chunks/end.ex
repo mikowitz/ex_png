@@ -14,7 +14,7 @@ defmodule ExPng.Chunks.End do
   @doc """
   Creates a new End chunk.
   """
-  @spec new(:IEND, term()) :: __MODULE__.t
+  @spec new(:IEND, term()) :: {:ok, __MODULE__.t}
   def new(:IEND, _data), do: {:ok, %__MODULE__{}}
 
   @behaviour ExPng.Encodeable
