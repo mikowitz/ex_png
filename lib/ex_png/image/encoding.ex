@@ -11,7 +11,7 @@ defmodule ExPng.Image.Encoding do
 
   def to_raw_data(%Image{} = image, encoding_options \\ []) do
     header = build_header(image)
-    filter_type = Keyword.get(encoding_options, :filter, @filter_none)
+    filter_type = Keyword.get(encoding_options, :filter, @filter_up)
     {image_data_chunk, palette} = ImageData.from_pixels(image, header, filter_type)
 
     raw_data =
