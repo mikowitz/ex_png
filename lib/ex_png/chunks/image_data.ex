@@ -10,7 +10,7 @@ defmodule ExPng.Chunks.ImageData do
 
   use ExPng.Constants
 
-  alias ExPng.{Image, Pixel}
+  alias ExPng.{Chunks.ImageData, Pixel}
   alias ExPng.Image.{Filtering, Pixelation}
 
   import ExPng.Utilities, only: [reduce_to_binary: 1]
@@ -40,7 +40,7 @@ defmodule ExPng.Chunks.ImageData do
       |> inflate()
       |> reduce_to_binary()
 
-    %ExPng.Chunks.ImageData{data: data}
+    %ImageData{data: data}
   end
 
   @behaviour ExPng.Encodeable
@@ -55,8 +55,9 @@ defmodule ExPng.Chunks.ImageData do
     <<length::32>> <> type <> data <> <<crc::32>>
   end
 
-  def from_pixels(image, header, filter_type \\ @filter_none) do
-    palette = Image.unique_pixels(image)
+  def from_pixels(image, header, filter_type \\ @filter_none, palette \\ nil)
+  def from_pixels(nil, _, _ , _), do: %__MODULE__{data: nil}
+  def from_pixels(image, header, filter_type, palette) do
     lines =
       Enum.map(image.pixels, fn line ->
         Task.async(fn ->
@@ -70,7 +71,7 @@ defmodule ExPng.Chunks.ImageData do
     pixel_size = Pixel.pixel_bytesize(header.color_mode, header.bit_depth)
     data = apply_filter(lines, pixel_size, filter_type)
 
-    {%__MODULE__{data: data}, %ExPng.Chunks.Palette{palette: palette}}
+    %__MODULE__{data: data}
   end
 
   ## PRIVATE
