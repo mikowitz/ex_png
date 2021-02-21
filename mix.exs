@@ -17,7 +17,8 @@ defmodule ExPng.MixProject do
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test
-      ]
+      ],
+      dialyzer: dialyzer()
     ]
   end
 
@@ -52,6 +53,13 @@ defmodule ExPng.MixProject do
       links: %{
         "GitHub" => "https://github.com/mikowitz/ex_png"
       }
+    ]
+  end
+
+  defp dialyzer do
+    [
+      plt_core_path: "_build/#{Mix.env()}",
+      plt_file: {:no_warn, "_build/#{Mix.env()}/dialyzer.plt"}
     ]
   end
 end

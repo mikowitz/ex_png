@@ -43,7 +43,7 @@ jobs:
             deps
             _build
             !_build/test/lib/ex_png
-          key: ${{runner.os}}-${{matrix.elixir}}-${{matrix.otp}}-deps-cache-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
+          key: ${{runner.os}}-${{matrix.elixir}}-${{matrix.otp}}-plt-cache-${{ hashFiles(format('{0}{1}', github.workspace, '/mix.lock')) }}
       - if: steps.cache-deps.outputs.cache-hit != 'true'
         run: mix deps.get
       - if: steps.cache-deps.outputs.cache-hit != 'true'
