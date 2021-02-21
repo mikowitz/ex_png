@@ -48,28 +48,61 @@ defmodule ExPng.Image.Adam7 do
           |> Enum.map(& Pixelation.to_pixels(&1, bit_depth, color_mode, palette) |> Enum.take(w))
         {pos, [pixels|lines], data}
       else
-        {pos, lines, data}
+        {pos, [nil|lines], data}
       end
     end)
     Enum.reverse(lines)
-    |> Enum.map(& Image.new(&1))
+    |> Enum.map(fn pixels ->
+      case pixels do
+        nil -> nil
+        _ -> Image.new(pixels)
+      end
+    end)
   end
 
   def compose_sub_images(sub_images, image) do
     sub_images
     |> Enum.with_index()
     |> Enum.reduce(image, fn {sub_image, pass}, image ->
-      [x_shift, x_offset, y_shift, y_offset] = Enum.at(@pass_shifts_and_offsets, pass)
-      height = sub_image.height
-      width = sub_image.width
-      coords = for x <- 0..(width-1), y <- 0..(height-1), do: {x, y}
-      Enum.reduce(coords, image, fn {x, y}, image ->
-        new_x = (x <<< x_shift) ||| x_offset
-        new_y = (y <<< y_shift) ||| y_offset
-        color = Image.at(sub_image, {x, y})
-        Image.draw(image, {new_x, new_y}, color)
-      end)
+      merge_sub_image(sub_image, pass, image)
     end)
+  end
+
+  defp merge_sub_image(nil, _pass, image), do: image
+  defp merge_sub_image(sub_image, pass, image) do
+    [x_shift, x_offset, y_shift, y_offset] = Enum.at(@pass_shifts_and_offsets, pass)
+    height = sub_image.height
+    width = sub_image.width
+    coords = for x <- 0..(width-1), y <- 0..(height-1), do: {x, y}
+    Enum.reduce(coords, image, fn {x, y}, image ->
+      new_x = (x <<< x_shift) ||| x_offset
+      new_y = (y <<< y_shift) ||| y_offset
+      color = Image.at(sub_image, {x, y})
+      Image.draw(image, {new_x, new_y}, color)
+    end)
+  end
+
+  def decompose_into_sub_images(image) do
+    for pass <- 0..6 do
+      [x_shift, x_offset, y_shift, y_offset] = Enum.at(@pass_shifts_and_offsets, pass)
+      ys = Stream.iterate(y_offset, & &1 + (1 <<< y_shift)) |> Enum.take_while(fn y -> y < image.height end)
+      xs = Stream.iterate(x_offset, & &1 + (1 <<< x_shift)) |> Enum.take_while(fn x -> x < image.height end)
+      [width, _height] = pass_size(pass, image.width, image.height)
+
+      coords = for x <- xs, y <- ys, do: {x, y}
+      pixels =
+        coords
+        |> Enum.sort_by(fn {x, y} -> [y, x] end)
+        |> Enum.map(fn coord -> Image.at(image, coord) end)
+
+      case length(pixels) do
+        0 -> nil
+        _ ->
+          pixels
+          |> Enum.chunk_every(width)
+          |> Image.new
+      end
+    end
   end
 
   defp pass_size(pass, width, height) do
@@ -80,3 +113,17 @@ defmodule ExPng.Image.Adam7 do
     ]
   end
 end
+
+      # def adam7_extract_pass(pass, canvas)
+      #   x_shift, x_offset, y_shift, y_offset = adam7_multiplier_offset(pass)
+      #   sm_pixels = []
+
+      #   y_offset.step(canvas.height - 1, 1 << y_shift) do |y|
+      #     x_offset.step(canvas.width - 1, 1 << x_shift) do |x|
+      #       sm_pixels << canvas[x, y]
+      #     end
+      #   end
+
+      #   new_canvas_args = adam7_pass_size(pass, canvas.width, canvas.height) + [sm_pixels]
+      #   ChunkyPNG::Canvas.new(*new_canvas_args)
+      # end

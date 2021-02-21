@@ -32,8 +32,8 @@ And run:
 
 * Decodes any image the PNG standard allows. This includes all standard bit depths,
     color modes, filtering and iterlacing options
-* Encodes using 8 bit depth, truecolor alpha color mode, default zlib compression,
-    and no interlacing
+* Encodes using any options the PNG standard allows. See [Saving Images](#saving-images)
+    below for the defaults `ExPng` uses, and how to override them
 * Read/write access to the image's pixels
 * Implements [Xiaolin Wu's algorithm][xw] for drawing antialiased lines
 * Works with all Elixir versions >= 1.7
@@ -83,17 +83,18 @@ color mode for the image in the following priority order:
 3. color images where the number of unique colors is indexable
 4. truecolor images with too many colors to index, with or without transparency
 
-Filter type and compression level can both be set when saving an image:
+Filter type, compression level, and whether to encode the image with Adam7
+interlacing can be set when saving an image:
 
-    ExPng.Image.to_file(image, filename, filter: :sub, compression: 9)
+    ExPng.Image.to_file(image, filename, filter: :sub, compression: 9, interlace: true)
 
 Valid values for compression are integers 0 (no compression) through 9 (max compression).
 
 Valid filter values are `:none`, `:up`, `:sub`, `:average`, and `:paeth`, which
 can also be represented, respectively, by integers 0-5.
 
-By default, `ExPng` uses the `up` filter, and the default `zlib` compression
-level 6.
+By default, `ExPng` uses the `up` filter, the default `zlib` compression
+level 6, and no interlacing.
 
 ## Documentation
 
