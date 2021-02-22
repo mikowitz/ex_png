@@ -5,21 +5,21 @@ defmodule ExPng.Image.Drawing do
 
   @type coordinate_pair :: {pos_integer, pos_integer}
 
-  alias ExPng.{Image, Pixel}
+  alias ExPng.{Color, Image}
 
   @doc """
   Colors the pixel at the given `{x, y}` coordinates in the image the provided
   color.
   """
-  @spec draw(Image.t, coordinate_pair, ExPng.maybe(Pixel.t)) :: Image.t
-  def draw(%Image{} = image, {_, _} = coordinates, color \\ ExPng.Pixel.black()) do
+  @spec draw(Image.t, coordinate_pair, ExPng.maybe(Color.t)) :: Image.t
+  def draw(%Image{} = image, {_, _} = coordinates, color \\ Color.black()) do
     update_in(image, [coordinates], fn _ -> color end)
   end
 
   @doc """
   Returns the pixel at the given `{x, y}` coordinates in the image.
   """
-  @spec at(Image.t, coordinate_pair) :: ExPng.Pixel.t
+  @spec at(Image.t, coordinate_pair) :: Color.t
   def at(%Image{} = image, {_, _} = coordinates) do
     get_in(image, [coordinates])
   end
@@ -44,7 +44,7 @@ defmodule ExPng.Image.Drawing do
 
   defp build_pixels(width, height) do
     for _ <- 1..height do
-      Stream.cycle([ExPng.Pixel.white()]) |> Enum.take(width)
+      Stream.cycle([Color.white()]) |> Enum.take(width)
     end
   end
 
@@ -56,8 +56,8 @@ defmodule ExPng.Image.Drawing do
   lines with a slope of 1 or -1. For other angles, [Xiaolin Wu's algorithm for
   drawing anti-aliased lines](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm) is used.
   """
-  @spec line(Image.t, coordinate_pair, coordinate_pair, ExPng.maybe(Pixel.t)) :: Image.t
-  def line(%Image{} = image, {x0, y0} = _coordinates0, {x1, y1} = _coordinates1, color \\ ExPng.Pixel.black()) do
+  @spec line(Image.t, coordinate_pair, coordinate_pair, ExPng.maybe(Color.t)) :: Image.t
+  def line(%Image{} = image, {x0, y0} = _coordinates0, {x1, y1} = _coordinates1, color \\ Color.black()) do
     dx = x1 - x0
     dy = y1 - y0
 
@@ -153,12 +153,14 @@ defmodule ExPng.Image.Drawing do
   end
 
   defp anti_alias(color, old, ratio) do
+    <<r, g, b, _>> = color
+    << old_r, old_g, old_b, _ >> = old
     [r, g, b] =
-      [color.r, color.g, color.b]
-      |> Enum.zip([old.r, old.g, old.b])
+      [r, g, b]
+      |> Enum.zip([old_r, old_g, old_b])
       |> Enum.map(fn {n, o} -> round(n * ratio + o * (1.0 - ratio)) end)
 
-    ExPng.Pixel.rgb(r, g, b)
+    Color.rgb(r, g, b)
   end
 
   defp ipart(x), do: Float.floor(x)

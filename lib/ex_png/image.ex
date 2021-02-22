@@ -5,9 +5,9 @@ defmodule ExPng.Image do
   """
 
   alias ExPng.Image.{Decoding, Drawing, Encoding}
-  alias ExPng.{Pixel, RawData}
+  alias ExPng.{Color, RawData}
 
-  @type row :: [Pixel.t, ...]
+  @type row :: [Color.t, ...]
   @type canvas :: [row, ...]
   @type t :: %__MODULE__{
     pixels: ExPng.maybe(canvas),
@@ -94,7 +94,7 @@ defmodule ExPng.Image do
   @doc """
   Returns a list of unique pixels values used in `image`.
   """
-  @spec unique_pixels(__MODULE__.t) :: [Pixel.t]
+  @spec unique_pixels(__MODULE__.t) :: [Color.t]
   def unique_pixels(%__MODULE__{pixels: pixels}) do
     pixels
     |> List.flatten()
@@ -105,7 +105,7 @@ defmodule ExPng.Image do
   defdelegate draw(image, coordinates, color), to: Drawing
   defdelegate at(image, coordinates), to: Drawing
   defdelegate clear(image, coordinates), to: Drawing
-  defdelegate line(image, coordinates0, coordinates1, color \\ ExPng.Pixel.black()), to: Drawing
+  defdelegate line(image, coordinates0, coordinates1, color \\ ExPng.Color.black()), to: Drawing
 
   @behaviour Access
 
@@ -146,14 +146,23 @@ defmodule ExPng.Image do
 
   @impl true
   def pop(%__MODULE__{} = image, {x, y}) do
-    {nil, update_in(image, [{x, y}], fn _ -> ExPng.Pixel.white() end)}
+    {nil, update_in(image, [{x, y}], fn _ -> ExPng.Color.white() end)}
   end
 end
 
 defimpl Inspect, for: ExPng.Image do
+  use Bitwise
+
   def inspect(%ExPng.Image{pixels: pixels}, _opts) do
     for line <- pixels do
-      Enum.map(line, &inspect/1)
+      Enum.map(line, fn <<r, g, b, a>> ->
+        pixel =
+          ((r <<< 24) + (g <<< 16) + (b <<< 8) + a)
+          |> Integer.to_string(16)
+          |> String.downcase()
+          |> String.pad_leading(8, "0")
+        "0x" <> pixel
+      end)
       |> Enum.join(" ")
     end
     |> Enum.join("\n")

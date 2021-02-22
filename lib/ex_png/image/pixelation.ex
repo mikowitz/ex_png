@@ -1,17 +1,17 @@
 defmodule ExPng.Image.Pixelation do
   @moduledoc """
   This module contains code for converting between unfiltered bytestrings and
-  lists of `t:ExPng.Pixel.t/0`.
+  lists of `t:ExPng.Color.t/0`.
   """
 
   use ExPng.Constants
 
-  alias ExPng.{Chunks.Palette, Pixel}
+  alias ExPng.{Chunks.Palette, Color}
 
   import ExPng.Utilities, only: [reduce_to_binary: 1]
 
   @doc """
-  Parses a de-filtered line of pixel data into a list of `ExPng.Pixel` structs
+  Parses a de-filtered line of pixel data into a list of `ExPng.Color` structs
   based on the bit depth and color mode of the image. For images that use the
   `t:ExPng.indexed/0` color mode, the image's `ExPng.Chunks.Palette` data is passed
   as an optional 4th argument.
@@ -24,10 +24,10 @@ defmodule ExPng.Image.Pixelation do
       iex> line = {0, <<21>>}
       iex> ExPng.Image.Pixelation.to_pixels(line, 1, 0)
       [
-        ExPng.Pixel.black(), ExPng.Pixel.black(),
-        ExPng.Pixel.black(), ExPng.Pixel.white(),
-        ExPng.Pixel.black(), ExPng.Pixel.white(),
-        ExPng.Pixel.black(), ExPng.Pixel.white()
+        ExPng.Color.black(), ExPng.Color.black(),
+        ExPng.Color.black(), ExPng.Color.white(),
+        ExPng.Color.black(), ExPng.Color.white(),
+        ExPng.Color.black(), ExPng.Color.white()
       ]
 
 
@@ -38,40 +38,40 @@ defmodule ExPng.Image.Pixelation do
       iex> line = {0, <<100, 100, 200, 30, 42, 89>>}
       iex> ExPng.Image.Pixelation.to_pixels(line, 8, 2)
       [
-        ExPng.Pixel.rgb(100, 100, 200),
-        ExPng.Pixel.rgb(30, 42, 89)
+        ExPng.Color.rgb(100, 100, 200),
+        ExPng.Color.rgb(30, 42, 89)
       ]
 
   """
-  @spec to_pixels(binary, ExPng.bit_depth, ExPng.color_mode, ExPng.maybe(Palette.t)) :: [ExPng.Pixel.t, ...]
+  @spec to_pixels(binary, ExPng.bit_depth, ExPng.color_mode, ExPng.maybe(Palette.t)) :: [ExPng.Color.t, ...]
   def to_pixels(line, bit_depth, color_mode, palette \\ nil)
 
   def to_pixels(data, 1, @grayscale, _) do
-    for <<x::1 <- data>>, do: Pixel.grayscale(x * 255)
+    for <<x::1 <- data>>, do: Color.grayscale(x * 255)
   end
 
   def to_pixels(data, 2, @grayscale, _) do
-    for <<x::2 <- data>>, do: Pixel.grayscale(x * 85)
+    for <<x::2 <- data>>, do: Color.grayscale(x * 85)
   end
 
   def to_pixels(data, 4, @grayscale, _) do
-    for <<x::4 <- data>>, do: Pixel.grayscale(x * 17)
+    for <<x::4 <- data>>, do: Color.grayscale(x * 17)
   end
 
   def to_pixels(data, 8, @grayscale, _) do
-    for <<x::8 <- data>>, do: Pixel.grayscale(x)
+    for <<x::8 <- data>>, do: Color.grayscale(x)
   end
 
   def to_pixels(data, 16, @grayscale, _) do
-    for <<x, _ <- data>>, do: Pixel.grayscale(x)
+    for <<x, _ <- data>>, do: Color.grayscale(x)
   end
 
   def to_pixels(data, 8, @truecolor, _) do
-    for <<r, g, b <- data>>, do: Pixel.rgb(r, g, b)
+    for <<r, g, b <- data>>, do: Color.rgb(r, g, b)
   end
 
   def to_pixels(data, 16, @truecolor, _) do
-    for <<r, _, g, _, b, _ <- data>>, do: Pixel.rgb(r, g, b)
+    for <<r, _, g, _, b, _ <- data>>, do: Color.rgb(r, g, b)
   end
 
   def to_pixels(data, depth, @indexed, palette) do
@@ -79,19 +79,19 @@ defmodule ExPng.Image.Pixelation do
   end
 
   def to_pixels(data, 8, @grayscale_alpha, _) do
-    for <<x, a <- data>>, do: Pixel.grayscale(x, a)
+    for <<x, a <- data>>, do: Color.grayscale(x, a)
   end
 
   def to_pixels(data, 16, @grayscale_alpha, _) do
-    for <<x, _, a, _ <- data>>, do: Pixel.grayscale(x, a)
+    for <<x, _, a, _ <- data>>, do: Color.grayscale(x, a)
   end
 
   def to_pixels(data, 8, @truecolor_alpha, _) do
-    for <<r, g, b, a <- data>>, do: Pixel.rgba(r, g, b, a)
+    for <<r, g, b, a <- data>>, do: Color.rgba(r, g, b, a)
   end
 
   def to_pixels(data, 16, @truecolor_alpha, _) do
-    for <<r, _, g, _, b, _, a, _ <- data>>, do: Pixel.rgba(r, g, b, a)
+    for <<r, _, g, _, b, _, a, _ <- data>>, do: Color.rgba(r, g, b, a)
   end
 
   ## from_pixels
@@ -99,7 +99,7 @@ defmodule ExPng.Image.Pixelation do
   def from_pixels(pixels, bit_depth, color_mode, palette \\ nil)
   def from_pixels(pixels, 1, @grayscale, _) do
     pixels
-    |> Enum.map(& div(&1.b, 255))
+    |> Enum.map(fn <<_, _, b, _>> -> div(b, 255) end)
     |> Enum.chunk_every(8)
     |> Enum.map(fn bits ->
       <<
@@ -134,12 +134,12 @@ defmodule ExPng.Image.Pixelation do
 
   def from_pixels(pixels, 8, color_mode, _) do
     pixels
-    |> Enum.map(fn pixel ->
+    |> Enum.map(fn <<r, g, b, a>> = pixel ->
       case color_mode do
-        @grayscale -> <<pixel.b>>
-        @grayscale_alpha -> <<pixel.b, pixel.a>>
-        @truecolor -> <<pixel.r, pixel.g, pixel.b>>
-        @truecolor_alpha -> <<pixel.r, pixel.g, pixel.b, pixel.a>>
+        @grayscale -> <<b>>
+        @grayscale_alpha -> <<b, a>>
+        @truecolor -> <<r, g, b>>
+        @truecolor_alpha -> pixel
       end
     end)
     |> reduce_to_binary()

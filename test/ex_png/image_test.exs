@@ -2,7 +2,7 @@ defmodule ExPng.ImageTest do
   use ExUnit.Case
   use ExPng.Constants
 
-  alias ExPng.{Image, Pixel}
+  alias ExPng.{Color, Image}
 
   describe "round trip" do
     test "for non-interlaced images" do
@@ -39,11 +39,11 @@ defmodule ExPng.ImageTest do
   describe "drawing" do
     test "it uses Access behaviour to set/find/erase pixels" do
       image = Image.new(10, 10)
-      assert Image.at(image, {2, 3}) == Pixel.white()
-      image = Image.draw(image, {2, 3}, Pixel.black())
-      assert Image.at(image, {2, 3}) == Pixel.black()
+      assert Image.at(image, {2, 3}) == Color.white()
+      image = Image.draw(image, {2, 3}, Color.black())
+      assert Image.at(image, {2, 3}) == Color.black()
       image = Image.clear(image, {2, 3})
-      assert Image.at(image, {2, 3}) == Pixel.white()
+      assert Image.at(image, {2, 3}) == Color.white()
     end
 
     test "erase will clear the image" do

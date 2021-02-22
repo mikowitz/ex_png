@@ -6,7 +6,7 @@ defmodule ExPng.Image.Decoding do
 
   use ExPng.Constants
 
-  alias ExPng.{Image, Image.Adam7, Image.Filtering, Image.Pixelation, Pixel, RawData}
+  alias ExPng.{Color, Image, Image.Adam7, Image.Filtering, Image.Pixelation, RawData}
 
   @doc """
   Converts a `RawData` struct into an `Image` struct.
@@ -27,7 +27,7 @@ defmodule ExPng.Image.Decoding do
     lines =
       data
       |> build_lines()
-      |> unfilter(Pixel.pixel_bytesize(data))
+      |> unfilter(Color.pixel_bytesize(data))
 
     pixels =
       lines
@@ -49,7 +49,7 @@ defmodule ExPng.Image.Decoding do
   end
 
   defp build_lines(%RawData{data_chunk: data} = image) do
-    with line_size <- Pixel.line_bytesize(image) do
+    with line_size <- Color.line_bytesize(image) do
       for <<f, line::bytes-size(line_size) <- data.data>>, do: {f, line}
     end
   end

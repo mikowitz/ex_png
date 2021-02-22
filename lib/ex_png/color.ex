@@ -1,26 +1,19 @@
-defmodule ExPng.Pixel do
+defmodule ExPng.Color do
   @moduledoc """
   Represents a single pixel in an image, storing red, green, blue and alpha
-  values, or an index when part of a paletted image.
+  values.
   """
   use ExPng.Constants
   use Bitwise
 
   @type rgba_value :: 0..255
-  @type t :: %__MODULE__{
-    r: rgba_value,
-    g: rgba_value,
-    b: rgba_value,
-    a: rgba_value,
-    index: ExPng.maybe(integer())
-  }
-  defstruct [:r, :g, :b, :index, a: 255]
+  @type t :: <<_::32>>
 
   @doc """
   Returns a grayscale pixel with the given value for the red, green, and blue values.
 
-      iex> Pixel.grayscale(100)
-      %Pixel{r: 100, g: 100, b: 100, a: 255}
+      iex> Color.grayscale(100)
+      %Color{r: 100, g: 100, b: 100, a: 255}
 
   If a second argument is passed, it sets the alpha value for the pixel.
 
@@ -29,7 +22,8 @@ defmodule ExPng.Pixel do
 
   """
   @spec grayscale(rgba_value, ExPng.maybe(rgba_value)) :: __MODULE__.t()
-  def grayscale(gray, alpha \\ 255), do: %__MODULE__{r: gray, g: gray, b: gray, a: alpha}
+  # def grayscale(gray, alpha \\ 255), do: %__MODULE__{r: gray, g: gray, b: gray, a: alpha}
+  def grayscale(gray, alpha \\ 255), do: <<gray, gray, gray, alpha>>
 
   @doc """
   Returns a pixel with the arguments as the red, green, and blue values
@@ -39,7 +33,7 @@ defmodule ExPng.Pixel do
 
   """
   @spec rgb(rgba_value, rgba_value, rgba_value) :: __MODULE__.t()
-  def rgb(r, g, b), do: %__MODULE__{r: r, g: g, b: b}
+  def rgb(r, g, b), do: <<r, g, b, 255>>
 
   @doc """
   Returns a pixel with the arguments as the red, green, blue, and alpha values
@@ -49,7 +43,7 @@ defmodule ExPng.Pixel do
 
   """
   @spec rgba(rgba_value, rgba_value, rgba_value, rgba_value) :: __MODULE__.t()
-  def rgba(r, g, b, a), do: %__MODULE__{r: r, g: g, b: b, a: a}
+  def rgba(r, g, b, a), do: <<r, g, b, a>>
 
   @doc """
   Shortcut for returning an opaque black pixel.
@@ -64,16 +58,16 @@ defmodule ExPng.Pixel do
   def white, do: grayscale(255)
 
   @spec opaque?(__MODULE__.t()) :: boolean
-  def opaque?(%__MODULE__{a: 255}), do: true
+  def opaque(<<_, _, _, 255>>), do: true
   def opaque?(_), do: false
 
   @spec grayscale?(__MODULE__.t()) :: boolean
-  def grayscale?(%__MODULE__{r: gr, g: gr, b: gr}), do: true
+  def grayscale?(<<gr, gr, gr, _>>), do: true
   def grayscale?(_), do: false
 
   @spec black_or_white?(__MODULE__.t()) :: boolean
-  def black_or_white?(%__MODULE__{r: 0, g: 0, b: 0, a: 255}), do: true
-  def black_or_white?(%__MODULE__{r: 255, g: 255, b: 255, a: 255}), do: true
+  def black_or_white?(<<0, 0, 0, 255>>), do: true
+  def black_or_white?(<<255, 255, 255, 255>>), do: true
   def black_or_white?(_), do: false
 
   def pixel_bytesize(%ExPng.RawData{header_chunk: header}) do
@@ -113,21 +107,5 @@ defmodule ExPng.Pixel do
     x
     |> Kernel.+(7)
     |> Bitwise.>>>(3)
-  end
-end
-
-defimpl Inspect, for: ExPng.Pixel do
-  import Inspect.Algebra
-
-  def inspect(%ExPng.Pixel{r: r, g: g, b: b, a: a}, _opts) do
-    use Bitwise
-
-    pixel =
-      ((r <<< 24) + (g <<< 16) + (b <<< 8) + a)
-      |> Integer.to_string(16)
-      |> String.downcase()
-      |> String.pad_leading(8, "0")
-
-    concat(["0x", pixel])
   end
 end

@@ -4,40 +4,6 @@ defmodule WriteBench do
   {:ok, kitten} = ExPng.Image.from_file("prof/large.png")
   @kitten kitten
 
-  # teardown_all nil do
-  #   File.rm("write_bench.png")
-  # end
-
-  # bench "no filtering, default compression" do
-  #   ExPng.Image.to_file(@kitten, "write_bench.png")
-  #   IO.inspect File.stat!("write_bench.png").size
-  # end
-
-  # bench "paeth filtering, default compression" do
-  #   ExPng.Image.to_file(@kitten, "write_bench.png", filter: ExPng.Image.Filtering.paeth)
-  #   IO.inspect File.stat!("write_bench.png").size
-  # end
-
-  # bench "no filtering, max compression" do
-  #   ExPng.Image.to_file(@kitten, "write_bench.png", compression: 9)
-  #   IO.inspect File.stat!("write_bench.png").size
-  # end
-
-  # bench "paeth filtering, max compression" do
-  #   ExPng.Image.to_file(@kitten, "write_bench.png", filter: ExPng.Image.Filtering.paeth, compression: 9)
-  #   IO.inspect File.stat!("write_bench.png").size
-  # end
-
-  # bench "no filtering, no compression" do
-  #   ExPng.Image.to_file(@kitten, "write_bench.png", compression: 0)
-  #   IO.inspect File.stat!("write_bench.png").size
-  # end
-
-  # bench "paeth filtering, no compression" do
-  #   ExPng.Image.to_file(@kitten, "write_bench.png", filter: ExPng.Image.Filtering.paeth, compression: 0)
-  #   IO.inspect File.stat!("write_bench.png").size
-  # end
-
   Benchee.run(
     %{
       "no filter, no compression" => fn -> ExPng.Image.to_file(@kitten, "write_bench-00.png", filter: ExPng.Image.Filtering.none, compression: 0) end,
@@ -49,7 +15,8 @@ defmodule WriteBench do
       "paeth filter, no compression" => fn -> ExPng.Image.to_file(@kitten, "write_bench-40.png", filter: ExPng.Image.Filtering.paeth, compression: 0) end,
       "paeth filter, default compression" => fn -> ExPng.Image.to_file(@kitten, "write_bench-46.png", filter: ExPng.Image.Filtering.paeth, compression: 6) end,
       "paeth filter, max compression" => fn -> ExPng.Image.to_file(@kitten, "write_bench-49.png", filter: ExPng.Image.Filtering.paeth, compression: 9) end,
-    }
+    },
+    time: 10
   )
 
   File.rm("write_bench.png")
