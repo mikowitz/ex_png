@@ -9,7 +9,7 @@ defmodule ExPng.Image.Encoding do
   import ExPng.Utilities, only: [reduce_to_binary: 1]
 
   alias ExPng.Chunks.{End, Header, ImageData, Palette}
-  alias ExPng.{Image, Image.Adam7, Pixel, RawData}
+  alias ExPng.{Color, Image, Image.Adam7, RawData}
 
   @spec to_raw_data(Image.t, ExPng.maybe(keyword)) :: {:ok, RawData.t}
   def to_raw_data(%Image{} = image, encoding_options \\ []) do
@@ -118,16 +118,16 @@ defmodule ExPng.Image.Encoding do
 
   defp opaque?(pixels) do
     pixels
-    |> Enum.all?(&Pixel.opaque?/1)
+    |> Enum.all?(&Color.opaque?/1)
   end
 
   defp grayscale?(pixels) do
     pixels
-    |> Enum.all?(&Pixel.grayscale?/1)
+    |> Enum.all?(&Color.grayscale?/1)
   end
 
   defp black_and_white?(pixels) do
     pixels
-    |> Enum.all?(&Pixel.black_or_white?/1)
+    |> Enum.all?(&Color.black_or_white?/1)
   end
 end

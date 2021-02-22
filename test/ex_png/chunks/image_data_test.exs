@@ -2,14 +2,14 @@ defmodule ExPng.Chunks.ImageDataTest do
   use ExUnit.Case
   use ExPng.Constants
 
-  alias ExPng.{Image, Pixel}
+  alias ExPng.{Color, Image}
   alias ExPng.Chunks.{Header, ImageData}
 
   setup do
     image = %Image{
       pixels: [
-        [Pixel.white(), Pixel.black()],
-        [Pixel.rgba(100, 200, 100, 100), Pixel.rgb(100, 200, 255)]
+        [Color.white(), Color.black()],
+        [Color.rgba(100, 200, 100, 100), Color.rgb(100, 200, 255)]
       ]
     }
     {:ok, image: image}
@@ -31,10 +31,10 @@ defmodule ExPng.Chunks.ImageDataTest do
       image_data = image_data_from_pixels(context.image, 2, @indexed, @filter_none, palette)
       assert image_data.data == <<0, 16, 0, 176>>
       assert palette == [
-        Pixel.white(),
-        Pixel.black(),
-        Pixel.rgba(100, 200, 100, 100),
-        Pixel.rgb(100, 200, 255)
+        Color.white(),
+        Color.black(),
+        Color.rgba(100, 200, 100, 100),
+        Color.rgb(100, 200, 255)
       ]
     end
 

@@ -2,7 +2,7 @@ defmodule ExPng.Image.PixelationTest do
   use ExUnit.Case
   use ExPng.Constants
 
-  alias ExPng.Pixel
+  alias ExPng.Color
   alias ExPng.Image.Pixelation
 
   describe "to_pixels" do
@@ -11,8 +11,8 @@ defmodule ExPng.Image.PixelationTest do
         check_pixel_dimensions(canvas)
 
         pixels = Enum.at(canvas.pixels, 0)
-        assert Enum.at(pixels, 0) == Pixel.white()
-        assert Enum.at(pixels, -1) == Pixel.black()
+        assert Enum.at(pixels, 0) == Color.white()
+        assert Enum.at(pixels, -1) == Color.black()
       end
     end
 
@@ -21,11 +21,11 @@ defmodule ExPng.Image.PixelationTest do
         check_pixel_dimensions(canvas)
 
         pixels = Enum.at(canvas.pixels, 0)
-        assert Enum.at(pixels, 0) == Pixel.black()
-        assert Enum.at(pixels, 4) == Pixel.grayscale(85)
-        assert Enum.at(pixels, 8) == Pixel.grayscale(170)
-        assert Enum.at(pixels, 12) == Pixel.white()
-        assert Enum.at(pixels, 16) == Pixel.black()
+        assert Enum.at(pixels, 0) == Color.black()
+        assert Enum.at(pixels, 4) == Color.grayscale(85)
+        assert Enum.at(pixels, 8) == Color.grayscale(170)
+        assert Enum.at(pixels, 12) == Color.white()
+        assert Enum.at(pixels, 16) == Color.black()
       end
     end
 
@@ -34,16 +34,16 @@ defmodule ExPng.Image.PixelationTest do
         check_pixel_dimensions(canvas)
 
         pixels = Enum.at(canvas.pixels, 0)
-        assert Enum.at(pixels, 0) == Pixel.black()
-        assert Enum.at(pixels, 8) == Pixel.grayscale(34)
-        assert Enum.at(pixels, 16) == Pixel.grayscale(68)
-        assert Enum.at(pixels, 24) == Pixel.grayscale(102)
+        assert Enum.at(pixels, 0) == Color.black()
+        assert Enum.at(pixels, 8) == Color.grayscale(34)
+        assert Enum.at(pixels, 16) == Color.grayscale(68)
+        assert Enum.at(pixels, 24) == Color.grayscale(102)
 
         pixels = Enum.at(canvas.pixels, -1)
-        assert Enum.at(pixels, 0) == Pixel.grayscale(119)
-        assert Enum.at(pixels, 8) == Pixel.grayscale(153)
-        assert Enum.at(pixels, 16) == Pixel.grayscale(187)
-        assert Enum.at(pixels, 24) == Pixel.grayscale(221)
+        assert Enum.at(pixels, 0) == Color.grayscale(119)
+        assert Enum.at(pixels, 8) == Color.grayscale(153)
+        assert Enum.at(pixels, 16) == Color.grayscale(187)
+        assert Enum.at(pixels, 24) == Color.grayscale(221)
       end
     end
 
@@ -123,9 +123,9 @@ defmodule ExPng.Image.PixelationTest do
   describe "from_pixels" do
     setup do
       pixels = [
-        Pixel.black(), Pixel.white(),
-        Pixel.rgb(10, 20, 30), Pixel.rgba(10, 20, 255, 40),
-        Pixel.grayscale(80), Pixel.grayscale(40, 60)
+        Color.black(), Color.white(),
+        Color.rgb(10, 20, 30), Color.rgba(10, 20, 255, 40),
+        Color.grayscale(80), Color.grayscale(40, 60)
       ]
       {:ok, pixels: pixels}
     end
@@ -142,13 +142,13 @@ defmodule ExPng.Image.PixelationTest do
     test "indexed, bit_depth 4", context do
       palette = Enum.sort(context.pixels)
       assert Pixelation.from_pixels(context.pixels, 4, @indexed, palette) ==
-        <<37, 48, 65>>
+        <<5, 18, 67>>
     end
 
     test "indexed, bit_depth 8", context do
       palette = Enum.sort(context.pixels)
       assert Pixelation.from_pixels(context.pixels, 8, @indexed, palette) ==
-      <<2, 5, 3, 0, 4, 1>>
+      <<0, 5, 1, 2, 4, 3>>
     end
 
     test "grayscale alpha, bit depth 8", context do

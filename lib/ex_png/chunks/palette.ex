@@ -4,14 +4,14 @@ defmodule ExPng.Chunks.Palette do
   indexed filter method.
   """
 
-  alias ExPng.Pixel
+  alias ExPng.Color
 
   import ExPng.Utilities, only: [reduce_to_binary: 1]
 
   @type t :: %__MODULE__{
     type: :PLTE,
     data: ExPng.maybe(binary()),
-    palette: [ExPng.Pixel.t, ...]
+    palette: [ExPng.Color.t, ...]
   }
   defstruct [:data, :palette, type: :PLTE]
 
@@ -27,7 +27,7 @@ defmodule ExPng.Chunks.Palette do
   @impl true
   def to_bytes(%__MODULE__{palette: palette}, _encoding_options \\ []) do
     data =
-      Enum.map(palette, fn pixel -> <<pixel.r, pixel.g, pixel.b>> end)
+      Enum.map(palette, fn <<r, g, b, _>> -> <<r, g, b>> end)
       |> reduce_to_binary()
     length = byte_size(data)
     type = <<80, 76, 84, 69>>
@@ -39,6 +39,6 @@ defmodule ExPng.Chunks.Palette do
   ## PRIVATE
 
   defp parse_palette(data) do
-    for <<r, g, b <- data>>, do: Pixel.rgb(r, g, b)
+    for <<r, g, b <- data>>, do: Color.rgb(r, g, b)
   end
 end
