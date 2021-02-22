@@ -21,7 +21,7 @@ Add `:ex_png` as a dependency in your project's `mix.exs`:
 
     def deps do
       [
-        {:ex_png, "~> 0.1.0"}
+        {:ex_png, "~> 0.2.0"}
       ]
     end
 
@@ -39,12 +39,18 @@ And run:
 * Implements [Xiaolin Wu's algorithm][xw] for drawing antialiased lines
 * Works with all Elixir versions >= 1.7
 
-
 ## Creating images
 
 Images can be created by decoding an existing PNG file
 
     {:ok, image} = ExPng.Image.from_file("adorable_kittens.png")
+
+by passing in a list of rows of `ExPng.Pixel` structs
+
+    image = ExPng.Image.new([
+        [ExPng.Pixel.rgb(100, 200, 200), ExPng.Pixel.rgb(0, 100, 100)],
+        [ExPng.Pixel.rgb(50, 100, 200), ExPng.Pixel.rgb(0, 75, 43)],
+    ])
 
 or by creating a blank image with a given width and height
 
