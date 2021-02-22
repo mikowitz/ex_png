@@ -12,7 +12,7 @@ defmodule ExPng.Pixel do
     g: rgba_value,
     b: rgba_value,
     a: rgba_value,
-    index: integer() | nil
+    index: ExPng.maybe(integer())
   }
   defstruct [:r, :g, :b, :index, a: 255]
 
@@ -28,8 +28,7 @@ defmodule ExPng.Pixel do
       %Pixel{r: 100, g: 100, b: 100, a: 200}
 
   """
-  # @spec grayscale(number(), number() | nil) :: %__MODULE__.t()
-  @spec grayscale(rgba_value, rgba_value | nil) :: __MODULE__.t()
+  @spec grayscale(rgba_value, ExPng.maybe(rgba_value)) :: __MODULE__.t()
   def grayscale(gray, alpha \\ 255), do: %__MODULE__{r: gray, g: gray, b: gray, a: alpha}
 
   @doc """

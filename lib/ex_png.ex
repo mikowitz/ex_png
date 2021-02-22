@@ -14,6 +14,8 @@ defmodule ExPng do
   `ExPng.Image.clear/2` and `ExPng.Image.erase/1`
   """
 
+  @type maybe(t) :: t | nil
+
   @type filter_none :: 0
   @type filter_sub :: 1
   @type filter_up :: 2

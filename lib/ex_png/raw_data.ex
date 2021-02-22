@@ -17,8 +17,8 @@ defmodule ExPng.RawData do
   @type t :: %__MODULE__{
     header_chunk: Header.t,
     data_chunk: ImageData.t,
-    palette_chunk: Palette.t,
-    ancillary_chunks: [Ancillary.t],
+    palette_chunk: ExPng.maybe(Palette.t),
+    ancillary_chunks: ExPng.maybe([Ancillary.t]),
     end_chunk: End.t,
   }
   defstruct [

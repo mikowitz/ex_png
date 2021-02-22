@@ -3,15 +3,15 @@ defmodule ExPng.Image.Drawing do
   Utility module to hold functions related to drawing on images.
   """
 
-  @type coordinate_pair :: {integer, integer}
+  @type coordinate_pair :: {pos_integer, pos_integer}
 
-  alias ExPng.Image
+  alias ExPng.{Image, Pixel}
 
   @doc """
   Colors the pixel at the given `{x, y}` coordinates in the image the provided
   color.
   """
-  @spec draw(Image.t, coordinate_pair, ExPng.Pixel.t | nil) :: Image.t
+  @spec draw(Image.t, coordinate_pair, ExPng.maybe(Pixel.t)) :: Image.t
   def draw(%Image{} = image, {_, _} = coordinates, color \\ ExPng.Pixel.black()) do
     update_in(image, [coordinates], fn _ -> color end)
   end
@@ -56,7 +56,7 @@ defmodule ExPng.Image.Drawing do
   lines with a slope of 1 or -1. For other angles, [Xiaolin Wu's algorithm for
   drawing anti-aliased lines](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm) is used.
   """
-  @spec line(Image.t, coordinate_pair, coordinate_pair, ExPng.Pixel.t | nil) :: Image.t
+  @spec line(Image.t, coordinate_pair, coordinate_pair, ExPng.maybe(Pixel.t)) :: Image.t
   def line(%Image{} = image, {x0, y0} = _coordinates0, {x1, y1} = _coordinates1, color \\ ExPng.Pixel.black()) do
     dx = x1 - x0
     dy = y1 - y0

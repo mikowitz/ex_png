@@ -11,6 +11,7 @@ defmodule ExPng.Image.Encoding do
   alias ExPng.Chunks.{End, Header, ImageData, Palette}
   alias ExPng.{Image, Image.Adam7, Pixel, RawData}
 
+  @spec to_raw_data(Image.t, ExPng.maybe(keyword)) :: {:ok, RawData.t}
   def to_raw_data(%Image{} = image, encoding_options \\ []) do
     header = build_header(image, encoding_options)
     filter_type = Keyword.get(encoding_options, :filter, @filter_up)
@@ -19,7 +20,7 @@ defmodule ExPng.Image.Encoding do
     to_raw_data(image, header, palette, filter_type, interlaced)
   end
 
-  def to_raw_data(image, header, palette, filter_type, true) do
+  defp to_raw_data(image, header, palette, filter_type, true) do
     image_data =
       image
       |> Adam7.decompose_into_sub_images()
@@ -46,7 +47,7 @@ defmodule ExPng.Image.Encoding do
     {:ok, raw_data}
   end
 
-  def to_raw_data(image, header, palette, filter_type, false) do
+  defp to_raw_data(image, header, palette, filter_type, false) do
     image_data_chunk = ImageData.from_pixels(image, header, filter_type, palette)
     raw_data =
       %RawData{

@@ -8,6 +8,10 @@ defmodule ExPng.Image.Decoding do
 
   alias ExPng.{Image, Image.Adam7, Image.Filtering, Image.Pixelation, Pixel, RawData}
 
+  @doc """
+  Converts a `RawData` struct into an `Image` struct.
+  """
+  @spec from_raw_data(RawData.t) :: Image.t
   def from_raw_data(%RawData{header_chunk: %{interlace: 1}} = data) do
     %{width: width, height: height} = data.header_chunk
 

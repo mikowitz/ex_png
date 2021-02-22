@@ -10,7 +10,7 @@ defmodule ExPng.Chunks.ImageData do
 
   use ExPng.Constants
 
-  alias ExPng.{Chunks.ImageData, Pixel}
+  alias ExPng.{Chunks.Header, Image, Pixel}
   alias ExPng.Image.{Filtering, Pixelation}
 
   import ExPng.Utilities, only: [reduce_to_binary: 1]
@@ -21,11 +21,12 @@ defmodule ExPng.Chunks.ImageData do
   }
   defstruct [:data, type: :IDAT]
 
+  @doc """
+  Returns a new `ImageData` struct with the provided data.
+  """
   @spec new(:IDAT, binary) :: {:ok, __MODULE__.t}
   def new(:IDAT, data) do
-    image_data =
-      data
-    {:ok, %__MODULE__{data: image_data}}
+    {:ok, %__MODULE__{data: data}}
   end
 
   @doc """
@@ -40,7 +41,7 @@ defmodule ExPng.Chunks.ImageData do
       |> inflate()
       |> reduce_to_binary()
 
-    %ImageData{data: data}
+    %__MODULE__{data: data}
   end
 
   @behaviour ExPng.Encodeable
@@ -55,6 +56,12 @@ defmodule ExPng.Chunks.ImageData do
     <<length::32>> <> type <> data <> <<crc::32>>
   end
 
+  @doc """
+  Takes an image, a header, and optionally, a filter type and palette,
+  and returns an `ImageData` struct containing the image data translated into
+  a bytestring.
+  """
+  @spec from_pixels(ExPng.maybe(Image.t), Header.t, ExPng.maybe(ExPng.filter), ExPng.maybe(Image.row)) :: __MODULE__.t
   def from_pixels(image, header, filter_type \\ @filter_none, palette \\ nil)
   def from_pixels(nil, _, _ , _), do: %__MODULE__{data: nil}
   def from_pixels(image, header, filter_type, palette) do

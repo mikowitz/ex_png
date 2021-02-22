@@ -10,7 +10,7 @@ defmodule ExPng.Chunks.Palette do
 
   @type t :: %__MODULE__{
     type: :PLTE,
-    data: binary(),
+    data: ExPng.maybe(binary()),
     palette: [ExPng.Pixel.t, ...]
   }
   defstruct [:data, :palette, type: :PLTE]
