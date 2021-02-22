@@ -10,8 +10,8 @@ defmodule ExPng.Image do
   @type row :: [Pixel.t, ...]
   @type canvas :: [row, ...]
   @type t :: %__MODULE__{
-    pixels: canvas | nil,
-    raw_data: ExPng.RawData.t | nil,
+    pixels: ExPng.maybe(canvas),
+    raw_data: ExPng.maybe(RawData.t),
     height: pos_integer(),
     width: pos_integer()
   }
@@ -69,7 +69,21 @@ defmodule ExPng.Image do
     end
   end
 
-  @spec to_file(__MODULE__.t, filename, keyword | nil) :: {:ok, filename}
+  @doc """
+  Writes the `image` to disk at `filename` using the provided
+  `encoding_options`.
+
+  Encoding options can be:
+
+  * interlace: whether or not the image in encoding with Adam7 interlacing.
+    * defaults to `false`
+  * filter: the filtering algorithm to use. Can be one of `ExPng.Image.Filtering.{none, sub, up, average, paeth}`
+    * defaults to `up`
+  * compression: the compression level for the zlib compression algorithm to use. Can be an integer between 0 (no compression) and 9 (max compression)
+    * defaults to 6
+
+  """
+  @spec to_file(__MODULE__.t, filename, ExPng.maybe(keyword)) :: {:ok, filename}
   def to_file(%__MODULE__{} = image, filename, encoding_options \\ []) do
     with {:ok, raw_data} <- Encoding.to_raw_data(image, encoding_options) do
       RawData.to_file(raw_data, filename, encoding_options)
@@ -77,10 +91,13 @@ defmodule ExPng.Image do
     end
   end
 
+  @doc """
+  Returns a list of unique pixels values used in `image`.
+  """
   @spec unique_pixels(__MODULE__.t) :: [Pixel.t]
   def unique_pixels(%__MODULE__{pixels: pixels}) do
     pixels
-    |> Enum.reduce([], fn l, acc -> acc ++ l end)
+    |> List.flatten()
     |> Enum.uniq()
   end
 

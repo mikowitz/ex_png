@@ -8,6 +8,7 @@
 ![UNLICENSE](https://img.shields.io/github/license/mikowitz/ex_png)
 ![CI Tests](https://github.com/mikowitz/ex_png/workflows/CI%20Tests/badge.svg)
 ![Credo](https://github.com/mikowitz/ex_png/workflows/Credo/badge.svg)
+![Dialyzer](https://github.com/mikowitz/ex_png/workflows/Dialyzer/badge.svg)
 
 </center>
 
@@ -86,11 +87,17 @@ color mode for the image in the following priority order:
 Filter type, compression level, and whether to encode the image with Adam7
 interlacing can be set when saving an image:
 
-    ExPng.Image.to_file(image, filename, filter: :sub, compression: 9, interlace: true)
+    ExPng.Image.to_file(
+        image,
+        filename,
+        filter: ExPng.Image.Filtering.sub,
+        compression: 9,
+        interlace: true
+    )
 
 Valid values for compression are integers 0 (no compression) through 9 (max compression).
 
-Valid filter values are `:none`, `:up`, `:sub`, `:average`, and `:paeth`, which
+Valid filter values are `.none`, `.up`, `.sub`, `.average`, and `.paeth`, which
 can also be represented, respectively, by integers 0-5.
 
 By default, `ExPng` uses the `up` filter, the default `zlib` compression

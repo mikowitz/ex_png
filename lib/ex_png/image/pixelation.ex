@@ -6,7 +6,7 @@ defmodule ExPng.Image.Pixelation do
 
   use ExPng.Constants
 
-  alias ExPng.Pixel
+  alias ExPng.{Chunks.Palette, Pixel}
 
   import ExPng.Utilities, only: [reduce_to_binary: 1]
 
@@ -43,7 +43,7 @@ defmodule ExPng.Image.Pixelation do
       ]
 
   """
-  @spec to_pixels(binary, ExPng.bit_depth, ExPng.color_mode, ExPng.Chunks.Palette.t | nil) :: [ExPng.Pixel.t, ...]
+  @spec to_pixels(binary, ExPng.bit_depth, ExPng.color_mode, ExPng.maybe(Palette.t)) :: [ExPng.Pixel.t, ...]
   def to_pixels(line, bit_depth, color_mode, palette \\ nil)
 
   def to_pixels(data, 1, @grayscale, _) do

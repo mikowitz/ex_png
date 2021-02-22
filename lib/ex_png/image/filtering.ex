@@ -20,7 +20,7 @@ defmodule ExPng.Image.Filtering do
   @doc """
   Passes a line of filtered pixel data through a filtering algorithm based on its filter type, and returns the unfiltered original data.
   """
-  @spec unfilter(filtered_line, ExPng.bit_depth, filtered_line | binary | nil) :: binary
+  @spec unfilter(filtered_line, ExPng.bit_depth, ExPng.maybe(filtered_line | binary)) :: binary
   def unfilter(line, pixel_size, prev_line \\ nil)
   def unfilter({@filter_none, line}, _, _), do: line
 
