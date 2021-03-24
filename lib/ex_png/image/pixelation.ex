@@ -6,7 +6,7 @@ defmodule ExPng.Image.Pixelation do
 
   use ExPng.Constants
 
-  alias ExPng.{Chunks.Palette, Color}
+  alias ExPng.{Chunks.Palette, Chunks.Transparency, Color}
 
   import ExPng.Utilities, only: [reduce_to_binary: 1]
 
@@ -43,54 +43,54 @@ defmodule ExPng.Image.Pixelation do
       ]
 
   """
-  @spec to_pixels(binary, ExPng.bit_depth, ExPng.color_mode, ExPng.maybe(Palette.t)) :: [ExPng.Color.t, ...]
-  def to_pixels(line, bit_depth, color_mode, palette \\ nil)
+  @spec to_pixels(binary, ExPng.bit_depth, ExPng.color_mode, ExPng.maybe(Palette.t), ExPng.maybe(Transparency.t)) :: [ExPng.Color.t, ...]
+  def to_pixels(line, bit_depth, color_mode, palette \\ nil, transparency \\ nil)
 
-  def to_pixels(data, 1, @grayscale, _) do
-    for <<x::1 <- data>>, do: Color.grayscale(x * 255)
+  def to_pixels(data, 1, @grayscale, _, transparency) do
+    for <<x::1 <- data>>, do: Color.grayscale(x * 255) |> set_transparency(transparency)
   end
 
-  def to_pixels(data, 2, @grayscale, _) do
-    for <<x::2 <- data>>, do: Color.grayscale(x * 85)
+  def to_pixels(data, 2, @grayscale, _, transparency) do
+    for <<x::2 <- data>>, do: Color.grayscale(x * 85) |> set_transparency(transparency)
   end
 
-  def to_pixels(data, 4, @grayscale, _) do
-    for <<x::4 <- data>>, do: Color.grayscale(x * 17)
+  def to_pixels(data, 4, @grayscale, _, transparency) do
+    for <<x::4 <- data>>, do: Color.grayscale(x * 17) |> set_transparency(transparency)
   end
 
-  def to_pixels(data, 8, @grayscale, _) do
-    for <<x::8 <- data>>, do: Color.grayscale(x)
+  def to_pixels(data, 8, @grayscale, _, transparency) do
+    for <<x::8 <- data>>, do: Color.grayscale(x) |> set_transparency(transparency)
   end
 
-  def to_pixels(data, 16, @grayscale, _) do
-    for <<x, _ <- data>>, do: Color.grayscale(x)
+  def to_pixels(data, 16, @grayscale, _, transparency) do
+    for <<x, _ <- data>>, do: Color.grayscale(x) |> set_transparency(transparency)
   end
 
-  def to_pixels(data, 8, @truecolor, _) do
-    for <<r, g, b <- data>>, do: Color.rgb(r, g, b)
+  def to_pixels(data, 8, @truecolor, _, transparency) do
+    for <<r, g, b <- data>>, do: Color.rgb(r, g, b) |> set_transparency(transparency)
   end
 
-  def to_pixels(data, 16, @truecolor, _) do
-    for <<r, _, g, _, b, _ <- data>>, do: Color.rgb(r, g, b)
+  def to_pixels(data, 16, @truecolor, _, transparency) do
+    for <<r, _, g, _, b, _ <- data>>, do: Color.rgb(r, g, b) |> set_transparency(transparency)
   end
 
-  def to_pixels(data, depth, @indexed, palette) do
+  def to_pixels(data, depth, @indexed, palette, _) do
     for <<x::size(depth) <- data>>, do: Enum.at(palette.palette, x)
   end
 
-  def to_pixels(data, 8, @grayscale_alpha, _) do
+  def to_pixels(data, 8, @grayscale_alpha, _, _) do
     for <<x, a <- data>>, do: Color.grayscale(x, a)
   end
 
-  def to_pixels(data, 16, @grayscale_alpha, _) do
+  def to_pixels(data, 16, @grayscale_alpha, _, _) do
     for <<x, _, a, _ <- data>>, do: Color.grayscale(x, a)
   end
 
-  def to_pixels(data, 8, @truecolor_alpha, _) do
+  def to_pixels(data, 8, @truecolor_alpha, _, _) do
     for <<r, g, b, a <- data>>, do: Color.rgba(r, g, b, a)
   end
 
-  def to_pixels(data, 16, @truecolor_alpha, _) do
+  def to_pixels(data, 16, @truecolor_alpha, _, _) do
     for <<r, _, g, _, b, _, a, _ <- data>>, do: Color.rgba(r, g, b, a)
   end
 
@@ -143,5 +143,13 @@ defmodule ExPng.Image.Pixelation do
       end
     end)
     |> reduce_to_binary()
+  end
+
+  defp set_transparency(<<r, g, b, _>> = pixel, transparency) do
+    case transparency do
+      %Transparency{transparency: <<^r, ^g, ^b>>} ->
+        <<r, g, b, 0>>
+      _ -> pixel
+    end
   end
 end

@@ -23,6 +23,7 @@ defmodule ExPng.Image.Adam7 do
   def extract_sub_images(%RawData{} = raw_data) do
     data = raw_data.data_chunk
     palette = raw_data.palette_chunk
+    transparency = raw_data.transparency_chunk
     %{
       width: width,
       height: height,
@@ -45,7 +46,7 @@ defmodule ExPng.Image.Adam7 do
           pass_lines
           |> Enum.reverse()
           |> Decoding.unfilter(pixel_size)
-          |> Enum.map(& Pixelation.to_pixels(&1, bit_depth, color_mode, palette) |> Enum.take(w))
+          |> Enum.map(& Pixelation.to_pixels(&1, bit_depth, color_mode, palette, transparency) |> Enum.take(w))
         {pos, [pixels|lines], data}
       else
         {pos, [nil|lines], data}

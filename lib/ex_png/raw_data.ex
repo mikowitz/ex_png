@@ -12,12 +12,13 @@ defmodule ExPng.RawData do
   @signature <<0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A>>
 
   alias ExPng.Chunks
-  alias Chunks.{Ancillary, End, Header, ImageData, Palette}
+  alias Chunks.{Ancillary, End, Header, ImageData, Palette, Transparency}
 
   @type t :: %__MODULE__{
     header_chunk: Header.t,
     data_chunk: ImageData.t,
     palette_chunk: ExPng.maybe(Palette.t),
+    transparency_chunk: ExPng.maybe(Transparency.t),
     ancillary_chunks: ExPng.maybe([Ancillary.t]),
     end_chunk: End.t,
   }
@@ -25,6 +26,7 @@ defmodule ExPng.RawData do
     :header_chunk,
     :data_chunk,
     :palette_chunk,
+    :transparency_chunk,
     :ancillary_chunks,
     :end_chunk,
   ]
@@ -55,10 +57,16 @@ defmodule ExPng.RawData do
       palette -> Palette.to_bytes(palette)
     end
 
+    transparency_data = case raw_data.transparency_chunk do
+      nil -> ""
+      transparency -> Transparency.to_bytes(transparency)
+    end
+
     data =
       @signature <>
         Header.to_bytes(raw_data.header_chunk) <>
         palette_data <>
+        transparency_data <>
         image_data <>
         End.to_bytes(raw_data.end_chunk)
 
@@ -105,7 +113,11 @@ defmodule ExPng.RawData do
   defp from_chunks(header_chunk, chunks) do
     with {:ok, data_chunks, chunks} <- find_image_data(chunks),
          {:ok, end_chunk, chunks} <- find_end(chunks),
+         {:ok, transparency, chunks} <- find_transparency(chunks),
          {:ok, palette, chunks} <- find_palette(chunks, header_chunk) do
+
+      {:ok, transparency} = Transparency.parse_data(transparency, header_chunk)
+      palette = Palette.parse_data(palette, transparency, header_chunk)
       {
         :ok,
         %__MODULE__{
@@ -113,6 +125,7 @@ defmodule ExPng.RawData do
           data_chunk: ImageData.merge(data_chunks),
           end_chunk: end_chunk,
           palette_chunk: palette,
+          transparency_chunk: transparency,
           ancillary_chunks: chunks
         }
       }
@@ -132,6 +145,12 @@ defmodule ExPng.RawData do
     case find_chunk(chunks, :IEND) do
       nil -> {:error, "missing IEND chunk"}
       chunk -> {:ok, chunk, Enum.reject(chunks, fn c -> c == chunk end)}
+    end
+  end
+
+  defp find_transparency(chunks) do
+    with transparency_chunk <- find_chunk(chunks, :tRNS) do
+      {:ok, transparency_chunk, Enum.reject(chunks, fn chunk -> chunk == transparency_chunk end)}
     end
   end
 

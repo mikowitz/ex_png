@@ -59,7 +59,6 @@ defmodule ExPng.MixProject do
   defp dialyzer do
     [
       plt_core_path: "_build/#{Mix.env()}",
-      plt_file: {:no_warn, "_build/#{Mix.env()}/dialyzer.plt"}
     ]
   end
 end
