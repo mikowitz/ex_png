@@ -8,7 +8,7 @@ defmodule ExPng.Image.Encoding do
 
   import ExPng.Utilities, only: [reduce_to_binary: 1]
 
-  alias ExPng.Chunks.{End, Header, ImageData, Palette}
+  alias ExPng.Chunks.{End, Header, ImageData, Palette, Transparency}
   alias ExPng.{Color, Image, Image.Adam7, RawData}
 
   @spec to_raw_data(Image.t, ExPng.maybe(keyword)) :: {:ok, RawData.t}
@@ -38,8 +38,10 @@ defmodule ExPng.Image.Encoding do
 
     raw_data = case header.color_mode do
       @indexed ->
+        transparency = Transparency.build_from_pixel_palette(palette)
         %{raw_data |
-          palette_chunk: %Palette{palette: palette}
+          palette_chunk: %Palette{palette: palette},
+          transparency_chunk: transparency,
         }
       _ -> raw_data
     end
@@ -58,8 +60,10 @@ defmodule ExPng.Image.Encoding do
 
     raw_data = case header.color_mode do
       @indexed ->
+        transparency = Transparency.build_from_pixel_palette(palette)
         %{raw_data |
-          palette_chunk: %Palette{palette: palette}
+          palette_chunk: %Palette{palette: palette},
+          transparency_chunk: transparency,
         }
       _ -> raw_data
     end

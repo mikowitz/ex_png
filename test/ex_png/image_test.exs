@@ -34,6 +34,46 @@ defmodule ExPng.ImageTest do
         assert_round_trip(file)
       end
     end
+
+    test "for images with different transparency settings" do
+      for file <- Path.wildcard("test/png_suite/transparency/*.png") do
+        assert_round_trip(file)
+      end
+    end
+  end
+
+  describe "transparency" do
+    test "it maps onto the palette correctly" do
+      {:ok, image} = Image.from_file("test/png_suite/transparency/tm3n3p02.png")
+
+      assert image.raw_data.palette_chunk.palette == [
+        <<0, 0, 255, 0>>,
+        <<0, 0, 255, 85>>,
+        <<0, 0, 255, 170>>,
+        <<0, 0, 255, 255>>,
+      ]
+
+      assert Image.at(image, {0, 0}) == <<0, 0, 255, 0>>
+      assert Image.at(image, {31, 0}) == <<0, 0, 255, 85>>
+      assert Image.at(image, {0, 31}) == <<0, 0, 255, 170>>
+      assert Image.at(image, {31, 31}) == <<0, 0, 255, 255>>
+    end
+
+    test "it sets the target pixel correctly for a grayscale image" do
+      {:ok, image} = Image.from_file("test/png_suite/transparency/tbbn0g04.png")
+
+      assert image.raw_data.transparency_chunk.transparency == <<255, 255, 255>>
+
+      assert Image.at(image, {0, 0}) == <<255, 255, 255, 0>>
+    end
+
+    test "it sets the target pixel correctly for a truecolor image" do
+      {:ok, image} = Image.from_file("test/png_suite/transparency/tbbn2c16.png")
+
+      assert image.raw_data.transparency_chunk.transparency == <<255, 255, 255>>
+
+      assert Image.at(image, {0, 0}) == <<255, 255, 255, 0>>
+    end
   end
 
   describe "drawing" do

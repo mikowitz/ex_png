@@ -99,6 +99,7 @@ defmodule ExPng.Image do
     pixels
     |> List.flatten()
     |> Enum.uniq()
+    |> Enum.sort_by(fn <<_, _, _, a>> -> a end)
   end
 
   defdelegate erase(image), to: Drawing

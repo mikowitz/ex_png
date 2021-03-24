@@ -5,6 +5,7 @@ defmodule ExPng.Chunks.Palette do
   """
 
   alias ExPng.Color
+  alias ExPng.Chunks.{Header, Transparency}
 
   import ExPng.Utilities, only: [reduce_to_binary: 1]
 
@@ -21,6 +22,23 @@ defmodule ExPng.Chunks.Palette do
       {:ok, %__MODULE__{data: data, palette: palette}}
     end
   end
+
+  @spec parse_data(ExPng.maybe(__MODULE__.t), ExPng.maybe(Transparency.t), Header.t) :: ExPng.maybe(__MODULE__.t)
+  def parse_data(nil, _, _), do: nil
+  def parse_data(palette, nil, _), do: palette
+  def parse_data(%__MODULE__{} = palette, transparency, %Header{color_mode: 3}) do
+    new_palette =
+      palette.palette
+      |> Enum.with_index()
+      |> Enum.map(fn {<<r, g, b, _>>, i} ->
+        case Enum.at(transparency.transparency, i) do
+          nil -> <<r, g, b, 255>>
+          new_a -> <<r, g, b, new_a>>
+        end
+      end)
+    %{palette | palette: new_palette}
+  end
+  def parse_data(%__MODULE__{} = palette, _, _), do: palette
 
   @behaviour ExPng.Encodeable
 

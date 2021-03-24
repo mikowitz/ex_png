@@ -8,6 +8,7 @@ defmodule ExPng.Chunks do
         :IDAT -> ExPng.Chunks.ImageData
         :IEND -> ExPng.Chunks.End
         :PLTE -> ExPng.Chunks.Palette
+        :tRNS -> ExPng.Chunks.Transparency
         _ -> ExPng.Chunks.Ancillary
       end
 

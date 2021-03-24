@@ -26,14 +26,14 @@ defmodule ExPng.Chunks.ImageDataTest do
       assert image_data.data == <<0, 255, 0, 0, 100, 255>>
     end
 
-    test "indexed, bit_depth 1", context do
+    test "indexed, bit_depth 2", context do
       palette = Image.unique_pixels(context.image)
       image_data = image_data_from_pixels(context.image, 2, @indexed, @filter_none, palette)
-      assert image_data.data == <<0, 16, 0, 176>>
+      assert image_data.data == <<0, 96, 0, 48>>
       assert palette == [
+        Color.rgba(100, 200, 100, 100),
         Color.white(),
         Color.black(),
-        Color.rgba(100, 200, 100, 100),
         Color.rgb(100, 200, 255)
       ]
     end
