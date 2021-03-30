@@ -15,20 +15,20 @@ defmodule ExPng.RawData do
   alias Chunks.{Ancillary, End, Header, ImageData, Palette, Transparency}
 
   @type t :: %__MODULE__{
-    header_chunk: Header.t,
-    data_chunk: ImageData.t,
-    palette_chunk: ExPng.maybe(Palette.t),
-    transparency_chunk: ExPng.maybe(Transparency.t),
-    ancillary_chunks: ExPng.maybe([Ancillary.t]),
-    end_chunk: End.t,
-  }
+          header_chunk: Header.t(),
+          data_chunk: ImageData.t(),
+          palette_chunk: ExPng.maybe(Palette.t()),
+          transparency_chunk: ExPng.maybe(Transparency.t()),
+          ancillary_chunks: ExPng.maybe([Ancillary.t()]),
+          end_chunk: End.t()
+        }
   defstruct [
     :header_chunk,
     :data_chunk,
     :palette_chunk,
     :transparency_chunk,
     :ancillary_chunks,
-    :end_chunk,
+    :end_chunk
   ]
 
   @doc false
@@ -52,15 +52,17 @@ defmodule ExPng.RawData do
   def to_file(%__MODULE__{} = raw_data, filename, encoding_options \\ []) do
     image_data = ImageData.to_bytes(raw_data.data_chunk, encoding_options)
 
-    palette_data = case raw_data.palette_chunk do
-      nil -> ""
-      palette -> Palette.to_bytes(palette)
-    end
+    palette_data =
+      case raw_data.palette_chunk do
+        nil -> ""
+        palette -> Palette.to_bytes(palette)
+      end
 
-    transparency_data = case raw_data.transparency_chunk do
-      nil -> ""
-      transparency -> Transparency.to_bytes(transparency)
-    end
+    transparency_data =
+      case raw_data.transparency_chunk do
+        nil -> ""
+        transparency -> Transparency.to_bytes(transparency)
+      end
 
     data =
       @signature <>
@@ -115,9 +117,9 @@ defmodule ExPng.RawData do
          {:ok, end_chunk, chunks} <- find_end(chunks),
          {:ok, transparency, chunks} <- find_transparency(chunks),
          {:ok, palette, chunks} <- find_palette(chunks, header_chunk) do
-
       {:ok, transparency} = Transparency.parse_data(transparency, header_chunk)
       palette = Palette.parse_data(palette, transparency, header_chunk)
+
       {
         :ok,
         %__MODULE__{

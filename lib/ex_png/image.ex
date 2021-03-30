@@ -7,17 +7,17 @@ defmodule ExPng.Image do
   alias ExPng.Image.{Decoding, Drawing, Encoding}
   alias ExPng.{Color, RawData}
 
-  @type row :: [Color.t, ...]
+  @type row :: [Color.t(), ...]
   @type canvas :: [row, ...]
   @type t :: %__MODULE__{
-    pixels: ExPng.maybe(canvas),
-    raw_data: ExPng.maybe(RawData.t),
-    height: pos_integer(),
-    width: pos_integer()
-  }
-  @type filename :: String.t
-  @type success :: {:ok, __MODULE__.t}
-  @type error :: {:error, String.t, filename}
+          pixels: ExPng.maybe(canvas),
+          raw_data: ExPng.maybe(RawData.t()),
+          height: pos_integer(),
+          width: pos_integer()
+        }
+  @type filename :: String.t()
+  @type success :: {:ok, __MODULE__.t()}
+  @type error :: {:error, String.t(), filename}
 
   defstruct [
     :pixels,
@@ -29,7 +29,7 @@ defmodule ExPng.Image do
   @doc """
   Returns a blank (opaque white) image with the provided width and height
   """
-  @spec new(pos_integer, pos_integer) :: __MODULE__.t
+  @spec new(pos_integer, pos_integer) :: __MODULE__.t()
   def new(width, height) do
     %__MODULE__{
       width: width,
@@ -41,7 +41,7 @@ defmodule ExPng.Image do
   @doc """
   Constructs a new image from the provided 2-dimensional list of pixels
   """
-  @spec new(canvas) :: __MODULE__.t
+  @spec new(canvas) :: __MODULE__.t()
   def new(pixels) do
     %__MODULE__{
       pixels: pixels,
@@ -83,7 +83,7 @@ defmodule ExPng.Image do
     * defaults to 6
 
   """
-  @spec to_file(__MODULE__.t, filename, ExPng.maybe(keyword)) :: {:ok, filename}
+  @spec to_file(__MODULE__.t(), filename, ExPng.maybe(keyword)) :: {:ok, filename}
   def to_file(%__MODULE__{} = image, filename, encoding_options \\ []) do
     with {:ok, raw_data} <- Encoding.to_raw_data(image, encoding_options) do
       RawData.to_file(raw_data, filename, encoding_options)
@@ -94,7 +94,7 @@ defmodule ExPng.Image do
   @doc """
   Returns a list of unique pixels values used in `image`.
   """
-  @spec unique_pixels(__MODULE__.t) :: [Color.t]
+  @spec unique_pixels(__MODULE__.t()) :: [Color.t()]
   def unique_pixels(%__MODULE__{pixels: pixels}) do
     pixels
     |> List.flatten()
@@ -162,6 +162,7 @@ defimpl Inspect, for: ExPng.Image do
           |> Integer.to_string(16)
           |> String.downcase()
           |> String.pad_leading(8, "0")
+
         "0x" <> pixel
       end)
       |> Enum.join(" ")

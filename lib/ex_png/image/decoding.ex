@@ -11,11 +11,12 @@ defmodule ExPng.Image.Decoding do
   @doc """
   Converts a `RawData` struct into an `Image` struct.
   """
-  @spec from_raw_data(RawData.t) :: Image.t
+  @spec from_raw_data(RawData.t()) :: Image.t()
   def from_raw_data(%RawData{header_chunk: %{interlace: 1}} = data) do
     %{width: width, height: height} = data.header_chunk
 
     image = Image.new(width, height)
+
     image =
       data
       |> Adam7.extract_sub_images()
@@ -23,6 +24,7 @@ defmodule ExPng.Image.Decoding do
 
     %{image | raw_data: data}
   end
+
   def from_raw_data(%RawData{} = data) do
     lines =
       data
@@ -38,7 +40,8 @@ defmodule ExPng.Image.Decoding do
           data.header_chunk.color_mode,
           data.palette_chunk,
           data.transparency_chunk
-        ) |> Enum.take(data.header_chunk.width)
+        )
+        |> Enum.take(data.header_chunk.width)
       end)
 
     %Image{

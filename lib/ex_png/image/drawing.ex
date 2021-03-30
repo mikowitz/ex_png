@@ -11,7 +11,7 @@ defmodule ExPng.Image.Drawing do
   Colors the pixel at the given `{x, y}` coordinates in the image the provided
   color.
   """
-  @spec draw(Image.t, coordinate_pair, ExPng.maybe(Color.t)) :: Image.t
+  @spec draw(Image.t(), coordinate_pair, ExPng.maybe(Color.t())) :: Image.t()
   def draw(%Image{} = image, {_, _} = coordinates, color \\ Color.black()) do
     update_in(image, [coordinates], fn _ -> color end)
   end
@@ -19,7 +19,7 @@ defmodule ExPng.Image.Drawing do
   @doc """
   Returns the pixel at the given `{x, y}` coordinates in the image.
   """
-  @spec at(Image.t, coordinate_pair) :: Color.t
+  @spec at(Image.t(), coordinate_pair) :: Color.t()
   def at(%Image{} = image, {_, _} = coordinates) do
     get_in(image, [coordinates])
   end
@@ -28,7 +28,7 @@ defmodule ExPng.Image.Drawing do
   Clears the pixel at the given `{x, y}` coordinates in the image, coloring it
   opaque white.
   """
-  @spec clear(Image.t, coordinate_pair) :: Image.t
+  @spec clear(Image.t(), coordinate_pair) :: Image.t()
   def clear(%Image{} = image, {_, _} = coordinates) do
     {nil, image} = pop_in(image, [coordinates])
     image
@@ -37,7 +37,7 @@ defmodule ExPng.Image.Drawing do
   @doc """
   Erases all content in the image, setting every pixel to opaque white
   """
-  @spec erase(Image.t) :: Image.t
+  @spec erase(Image.t()) :: Image.t()
   def erase(%Image{} = image) do
     %{image | pixels: build_pixels(image.width, image.height)}
   end
@@ -48,7 +48,6 @@ defmodule ExPng.Image.Drawing do
     end
   end
 
-
   @doc """
   Draws a line between the given coordinates in the image.
 
@@ -56,8 +55,13 @@ defmodule ExPng.Image.Drawing do
   lines with a slope of 1 or -1. For other angles, [Xiaolin Wu's algorithm for
   drawing anti-aliased lines](https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm) is used.
   """
-  @spec line(Image.t, coordinate_pair, coordinate_pair, ExPng.maybe(Color.t)) :: Image.t
-  def line(%Image{} = image, {x0, y0} = _coordinates0, {x1, y1} = _coordinates1, color \\ Color.black()) do
+  @spec line(Image.t(), coordinate_pair, coordinate_pair, ExPng.maybe(Color.t())) :: Image.t()
+  def line(
+        %Image{} = image,
+        {x0, y0} = _coordinates0,
+        {x1, y1} = _coordinates1,
+        color \\ Color.black()
+      ) do
     dx = x1 - x0
     dy = y1 - y0
 
@@ -154,7 +158,8 @@ defmodule ExPng.Image.Drawing do
 
   defp anti_alias(color, old, ratio) do
     <<r, g, b, _>> = color
-    << old_r, old_g, old_b, _ >> = old
+    <<old_r, old_g, old_b, _>> = old
+
     [r, g, b] =
       [r, g, b]
       |> Enum.zip([old_r, old_g, old_b])

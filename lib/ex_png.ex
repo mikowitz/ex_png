@@ -28,17 +28,19 @@ defmodule ExPng do
   @type grayscale_alpha :: 4
   @type truecolor_alpha :: 6
 
-  @type filter :: filter_none
-  | filter_sub
-  | filter_up
-  | filter_average
-  | filter_paeth
+  @type filter ::
+          filter_none
+          | filter_sub
+          | filter_up
+          | filter_average
+          | filter_paeth
 
-  @type color_mode :: grayscale
-  | truecolor
-  | indexed
-  | grayscale_alpha
-  | truecolor_alpha
+  @type color_mode ::
+          grayscale
+          | truecolor
+          | indexed
+          | grayscale_alpha
+          | truecolor_alpha
 
   @type bit_depth :: 1 | 2 | 4 | 8 | 16
 end

@@ -43,7 +43,13 @@ defmodule ExPng.Image.Pixelation do
       ]
 
   """
-  @spec to_pixels(binary, ExPng.bit_depth, ExPng.color_mode, ExPng.maybe(Palette.t), ExPng.maybe(Transparency.t)) :: [ExPng.Color.t, ...]
+  @spec to_pixels(
+          binary,
+          ExPng.bit_depth(),
+          ExPng.color_mode(),
+          ExPng.maybe(Palette.t()),
+          ExPng.maybe(Transparency.t())
+        ) :: [ExPng.Color.t(), ...]
   def to_pixels(line, bit_depth, color_mode, palette \\ nil, transparency \\ nil)
 
   def to_pixels(data, 1, @grayscale, _, transparency) do
@@ -97,6 +103,7 @@ defmodule ExPng.Image.Pixelation do
   ## from_pixels
 
   def from_pixels(pixels, bit_depth, color_mode, palette \\ nil)
+
   def from_pixels(pixels, 1, @grayscale, _) do
     pixels
     |> Enum.map(fn <<_, _, b, _>> -> div(b, 255) end)
@@ -114,6 +121,7 @@ defmodule ExPng.Image.Pixelation do
 
   def from_pixels(pixels, bit_depth, @indexed, palette) do
     chunk_size = div(8, bit_depth)
+
     pixels
     |> Enum.map(fn pixel -> Enum.find_index(palette, fn p -> p == pixel end) end)
     |> Enum.map(fn i ->
@@ -127,6 +135,7 @@ defmodule ExPng.Image.Pixelation do
         |> Enum.join("")
         |> String.pad_trailing(8, "0")
         |> String.to_integer(2)
+
       <<byte>>
     end)
     |> reduce_to_binary()
@@ -149,7 +158,9 @@ defmodule ExPng.Image.Pixelation do
     case transparency do
       %Transparency{transparency: <<^r, ^g, ^b>>} ->
         <<r, g, b, 0>>
-      _ -> pixel
+
+      _ ->
+        pixel
     end
   end
 end

@@ -11,7 +11,7 @@ defmodule ExPng.Image.Encoding do
   alias ExPng.Chunks.{End, Header, ImageData, Palette, Transparency}
   alias ExPng.{Color, Image, Image.Adam7, RawData}
 
-  @spec to_raw_data(Image.t, ExPng.maybe(keyword)) :: {:ok, RawData.t}
+  @spec to_raw_data(Image.t(), ExPng.maybe(keyword)) :: {:ok, RawData.t()}
   def to_raw_data(%Image{} = image, encoding_options \\ []) do
     header = build_header(image, encoding_options)
     filter_type = Keyword.get(encoding_options, :filter, @filter_up)
@@ -24,59 +24,73 @@ defmodule ExPng.Image.Encoding do
     image_data =
       image
       |> Adam7.decompose_into_sub_images()
-      |> Enum.map(fn sub_image -> ImageData.from_pixels(sub_image, header, filter_type, palette) end)
+      |> Enum.map(fn sub_image ->
+        ImageData.from_pixels(sub_image, header, filter_type, palette)
+      end)
       |> Enum.map(fn %ImageData{data: data} -> data end)
       |> Enum.reject(&is_nil/1)
       |> reduce_to_binary()
 
-    raw_data =
-      %RawData{
-        header_chunk: header,
-        data_chunk: %ImageData{data: image_data},
-        end_chunk: %End{}
-      }
+    raw_data = %RawData{
+      header_chunk: header,
+      data_chunk: %ImageData{data: image_data},
+      end_chunk: %End{}
+    }
 
-    raw_data = case header.color_mode do
-      @indexed ->
-        transparency = Transparency.build_from_pixel_palette(palette)
-        %{raw_data |
-          palette_chunk: %Palette{palette: palette},
-          transparency_chunk: transparency,
-        }
-      _ -> raw_data
-    end
+    raw_data =
+      case header.color_mode do
+        @indexed ->
+          transparency = Transparency.build_from_pixel_palette(palette)
+
+          %{
+            raw_data
+            | palette_chunk: %Palette{palette: palette},
+              transparency_chunk: transparency
+          }
+
+        _ ->
+          raw_data
+      end
 
     {:ok, raw_data}
   end
 
   defp to_raw_data(image, header, palette, filter_type, false) do
     image_data_chunk = ImageData.from_pixels(image, header, filter_type, palette)
-    raw_data =
-      %RawData{
-        header_chunk: header,
-        data_chunk: image_data_chunk,
-        end_chunk: %End{}
-      }
 
-    raw_data = case header.color_mode do
-      @indexed ->
-        transparency = Transparency.build_from_pixel_palette(palette)
-        %{raw_data |
-          palette_chunk: %Palette{palette: palette},
-          transparency_chunk: transparency,
-        }
-      _ -> raw_data
-    end
+    raw_data = %RawData{
+      header_chunk: header,
+      data_chunk: image_data_chunk,
+      end_chunk: %End{}
+    }
+
+    raw_data =
+      case header.color_mode do
+        @indexed ->
+          transparency = Transparency.build_from_pixel_palette(palette)
+
+          %{
+            raw_data
+            | palette_chunk: %Palette{palette: palette},
+              transparency_chunk: transparency
+          }
+
+        _ ->
+          raw_data
+      end
 
     {:ok, raw_data}
   end
 
   defp build_header(%Image{} = image, encoding_options) do
-    interlace = case Keyword.get(encoding_options, :interlace, false) do
-      true -> 1
-      false -> 0
-    end
+    interlace =
+      case Keyword.get(encoding_options, :interlace, false) do
+        true -> 1
+        false -> 0
+      end
+
     {bit_depth, color_mode} = bit_depth_and_color_mode(image)
+
     %Header{
       width: image.width,
       height: image.height,
@@ -94,8 +108,11 @@ defmodule ExPng.Image.Encoding do
   # 4. truecolor (alpha)
   defp bit_depth_and_color_mode(%Image{} = image) do
     pixels = Image.unique_pixels(image)
+
     case black_and_white?(pixels) do
-      true -> {1, @grayscale}
+      true ->
+        {1, @grayscale}
+
       false ->
         case {indexable?(pixels), opaque?(pixels), grayscale?(pixels)} do
           {_, true, true} -> {8, @grayscale}
