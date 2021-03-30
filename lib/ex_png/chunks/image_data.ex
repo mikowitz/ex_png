@@ -16,15 +16,15 @@ defmodule ExPng.Chunks.ImageData do
   import ExPng.Utilities, only: [reduce_to_binary: 1]
 
   @type t :: %__MODULE__{
-    data: binary,
-    type: :IDAT
-  }
+          data: binary,
+          type: :IDAT
+        }
   defstruct [:data, type: :IDAT]
 
   @doc """
   Returns a new `ImageData` struct with the provided data.
   """
-  @spec new(:IDAT, binary) :: {:ok, __MODULE__.t}
+  @spec new(:IDAT, binary) :: {:ok, __MODULE__.t()}
   def new(:IDAT, data) do
     {:ok, %__MODULE__{data: data}}
   end
@@ -32,7 +32,7 @@ defmodule ExPng.Chunks.ImageData do
   @doc """
   Merges a list of ImageData chunks into one
   """
-  @spec merge([__MODULE__.t, ...]) :: __MODULE__.t
+  @spec merge([__MODULE__.t(), ...]) :: __MODULE__.t()
   def merge([%__MODULE__{} | _] = data_chunks) do
     data =
       data_chunks
@@ -61,9 +61,15 @@ defmodule ExPng.Chunks.ImageData do
   and returns an `ImageData` struct containing the image data translated into
   a bytestring.
   """
-  @spec from_pixels(ExPng.maybe(Image.t), Header.t, ExPng.maybe(ExPng.filter), ExPng.maybe(Image.row)) :: __MODULE__.t
+  @spec from_pixels(
+          ExPng.maybe(Image.t()),
+          Header.t(),
+          ExPng.maybe(ExPng.filter()),
+          ExPng.maybe(Image.row())
+        ) :: __MODULE__.t()
   def from_pixels(image, header, filter_type \\ @filter_none, palette \\ nil)
-  def from_pixels(nil, _, _ , _), do: %__MODULE__{data: nil}
+  def from_pixels(nil, _, _, _), do: %__MODULE__{data: nil}
+
   def from_pixels(image, header, filter_type, palette) do
     lines =
       Enum.map(image.pixels, fn line ->
@@ -83,14 +89,16 @@ defmodule ExPng.Chunks.ImageData do
 
   ## PRIVATE
 
-  defp apply_filter([head|_] = lines, pixel_size, filter_type) do
+  defp apply_filter([head | _] = lines, pixel_size, filter_type) do
     pad =
       Stream.cycle([<<0>>])
       |> Enum.take(byte_size(head))
       |> Enum.reduce(&Kernel.<>/2)
 
-    Enum.chunk_every([pad|lines], 2, 1, :discard)
-    |> Enum.map(fn [prev, line] -> Filtering.apply_filter({filter_type, line}, pixel_size, prev) end)
+    Enum.chunk_every([pad | lines], 2, 1, :discard)
+    |> Enum.map(fn [prev, line] ->
+      Filtering.apply_filter({filter_type, line}, pixel_size, prev)
+    end)
     |> Enum.map(fn line -> <<filter_type>> <> line end)
     |> reduce_to_binary()
   end
@@ -110,6 +118,7 @@ defmodule ExPng.Chunks.ImageData do
     deflated_data = :zlib.deflate(zstream, data, :finish)
     :zlib.deflateEnd(zstream)
     :zlib.close(zstream)
+
     deflated_data
     |> reduce_to_binary()
   end

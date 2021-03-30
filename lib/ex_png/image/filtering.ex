@@ -9,7 +9,7 @@ defmodule ExPng.Image.Filtering do
 
   import ExPng.Utilities, only: [reduce_to_binary: 1]
 
-  @type filtered_line :: {ExPng.filter, binary}
+  @type filtered_line :: {ExPng.filter(), binary}
 
   def none, do: @filter_none
   def sub, do: @filter_sub
@@ -20,7 +20,7 @@ defmodule ExPng.Image.Filtering do
   @doc """
   Passes a line of filtered pixel data through a filtering algorithm based on its filter type, and returns the unfiltered original data.
   """
-  @spec unfilter(filtered_line, ExPng.bit_depth, ExPng.maybe(filtered_line | binary)) :: binary
+  @spec unfilter(filtered_line, ExPng.bit_depth(), ExPng.maybe(filtered_line | binary)) :: binary
   def unfilter(line, pixel_size, prev_line \\ nil)
   def unfilter({@filter_none, line}, _, _), do: line
 
@@ -42,12 +42,15 @@ defmodule ExPng.Image.Filtering do
   end
 
   def unfilter({@filter_up, data}, _, nil), do: data
+
   def unfilter({@filter_up, _} = line, pixel_size, {_, prev_data}) do
     unfilter(line, pixel_size, prev_data)
   end
+
   def unfilter({@filter_up, data}, _pixel_size, prev_data) do
     data = for <<pixel <- data>>, do: pixel
     prev = for <<pixel <- prev_data>>, do: pixel
+
     Enum.zip(data, prev)
     |> Enum.map(fn {byte, prev} ->
       <<byte + prev &&& 0xFF>>
@@ -102,10 +105,9 @@ defmodule ExPng.Image.Filtering do
     data = for <<pixel::bytes-size(pixel_size) <- data>>, do: pixel
     prev_line = for <<pixel::bytes-size(pixel_size) <- prev_data>>, do: pixel
 
-    Enum.chunk_every([pad|prev_line], 2, 1, :discard)
+    Enum.chunk_every([pad | prev_line], 2, 1, :discard)
     |> Enum.zip(data)
     |> Enum.reduce([pad], fn {[c_byte, b_byte], byte}, [a_byte | _] = acc ->
-
       filtered_byte =
         Enum.reduce(0..(pixel_size - 1), <<>>, fn j, acc ->
           <<_::bytes-size(j), x, _::binary>> = byte
@@ -128,7 +130,8 @@ defmodule ExPng.Image.Filtering do
   def apply_filter({@filter_none, data}, _, _), do: data
 
   def apply_filter({@filter_sub, data}, pixel_size, _) do
-    [base|_] = pixels = for <<chunk::bytes-size(pixel_size) <- data >>, do: chunk
+    [base | _] = pixels = for <<chunk::bytes-size(pixel_size) <- data>>, do: chunk
+
     tail =
       Enum.chunk_every(pixels, 2, 1, :discard)
       |> Enum.map(fn [prev, pixel] ->
@@ -136,17 +139,20 @@ defmodule ExPng.Image.Filtering do
           <<_::bytes-size(i), bit, _::binary>> = pixel
           <<_::bytes-size(i), a, _::binary>> = prev
 
-          acc <> << bit - a &&& 0xFF>>
+          acc <> <<bit - a &&& 0xFF>>
         end)
       end)
-    [base|tail]
+
+    [base | tail]
     |> reduce_to_binary()
   end
 
   def apply_filter({@filter_up, data}, _, nil), do: data
+
   def apply_filter({@filter_up, _} = line, pixel_size, {_, prev}) do
     apply_filter(line, pixel_size, prev)
   end
+
   def apply_filter({@filter_up, data}, _, prev) do
     data = for <<pixel <- data>>, do: pixel
     prev = for <<pixel <- prev>>, do: pixel
@@ -161,20 +167,22 @@ defmodule ExPng.Image.Filtering do
   def apply_filter({@filter_average, _} = line, pixel_size, {_, prev_data}) do
     apply_filter(line, pixel_size, prev_data)
   end
+
   def apply_filter({@filter_average, data}, pixel_size, prev) do
     pad = build_pad_for_filter(pixel_size)
     data = for <<pixel::bytes-size(pixel_size) <- data>>, do: pixel
     prev_line = for <<pixel::bytes-size(pixel_size) <- prev>>, do: pixel
 
-    line = Enum.chunk_every([pad|data], 2, 1, :discard)
+    line = Enum.chunk_every([pad | data], 2, 1, :discard)
+
     Enum.zip(line, prev_line)
     |> Enum.map(fn {[a_byte, byte], b_byte} ->
-      Enum.reduce(0..(pixel_size-1), <<>>, fn j, acc ->
+      Enum.reduce(0..(pixel_size - 1), <<>>, fn j, acc ->
         <<_::bytes-size(j), byte, _::binary>> = byte
         <<_::bytes-size(j), a, _::binary>> = a_byte
         <<_::bytes-size(j), b, _::binary>> = b_byte
         avg = (a + b) >>> 1
-        acc <> << byte - avg &&& 0xFF >>
+        acc <> <<byte - avg &&& 0xFF>>
       end)
     end)
     |> reduce_to_binary()
@@ -183,13 +191,14 @@ defmodule ExPng.Image.Filtering do
   def apply_filter({@filter_paeth, _} = line, pixel_size, {_, prev_data}) do
     apply_filter(line, pixel_size, prev_data)
   end
+
   def apply_filter({@filter_paeth, data}, pixel_size, prev_data) do
     pad = build_pad_for_filter(pixel_size)
     data = for <<pixel::bytes-size(pixel_size) <- data>>, do: pixel
     prev_line = for <<pixel::bytes-size(pixel_size) <- prev_data>>, do: pixel
 
-    Enum.chunk_every([pad|prev_line], 2, 1, :discard)
-    |> Enum.zip(Enum.chunk_every([pad|data], 2, 1, :discard))
+    Enum.chunk_every([pad | prev_line], 2, 1, :discard)
+    |> Enum.zip(Enum.chunk_every([pad | data], 2, 1, :discard))
     |> Enum.map(fn {[c_byte, b_byte], [a_byte, byte]} ->
       Enum.reduce(0..(pixel_size - 1), <<>>, fn j, acc ->
         <<_::bytes-size(j), x, _::binary>> = byte
@@ -221,5 +230,4 @@ defmodule ExPng.Image.Filtering do
     |> Enum.take(pixel_size)
     |> Enum.reduce(&Kernel.<>/2)
   end
-
 end

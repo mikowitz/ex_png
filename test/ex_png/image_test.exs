@@ -47,11 +47,11 @@ defmodule ExPng.ImageTest do
       {:ok, image} = Image.from_file("test/png_suite/transparency/tm3n3p02.png")
 
       assert image.raw_data.palette_chunk.palette == [
-        <<0, 0, 255, 0>>,
-        <<0, 0, 255, 85>>,
-        <<0, 0, 255, 170>>,
-        <<0, 0, 255, 255>>,
-      ]
+               <<0, 0, 255, 0>>,
+               <<0, 0, 255, 85>>,
+               <<0, 0, 255, 170>>,
+               <<0, 0, 255, 255>>
+             ]
 
       assert Image.at(image, {0, 0}) == <<0, 0, 255, 0>>
       assert Image.at(image, {31, 0}) == <<0, 0, 255, 85>>
@@ -135,15 +135,18 @@ defmodule ExPng.ImageTest do
     test "it returns the correct terminal representation of the image" do
       image = Image.new(2, 2)
 
-      assert inspect(image) == """
-      0xffffffff 0xffffffff
-      0xffffffff 0xffffffff
-      """ |> String.trim()
+      assert inspect(image) ==
+               """
+               0xffffffff 0xffffffff
+               0xffffffff 0xffffffff
+               """
+               |> String.trim()
     end
   end
 
   defp assert_round_trip(filename) do
     {:ok, image} = Image.from_file(filename)
+
     for filter <- [@filter_none, @filter_sub, @filter_up, @filter_average, @filter_paeth] do
       for interlace <- [true, false] do
         {:ok, _} = Image.to_file(image, "experiment.png", filter: filter, interlace: interlace)
@@ -151,6 +154,7 @@ defmodule ExPng.ImageTest do
         assert image.pixels == read_image.pixels
       end
     end
+
     :ok = File.rm("experiment.png")
   end
 end

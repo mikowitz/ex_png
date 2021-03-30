@@ -6,15 +6,15 @@ defmodule ExPng.Chunks.Ancillary do
   """
 
   @type t :: %__MODULE__{
-    type: atom,
-    data: binary
-  }
+          type: atom,
+          data: binary
+        }
   defstruct [:type, :data]
 
   @doc """
   Returns a new ancillary chunk built from the provided chunk type and binary data.
   """
-  @spec new(atom, binary) :: {:ok, __MODULE__.t}
+  @spec new(atom, binary) :: {:ok, __MODULE__.t()}
   def new(type, data) do
     {:ok, %__MODULE__{type: type, data: data}}
   end
