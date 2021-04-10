@@ -21,7 +21,7 @@ Add `:ex_png` as a dependency in your project's `mix.exs`:
 
     def deps do
       [
-        {:ex_png, "~> 0.2.0"}
+        {:ex_png, "~> 1.0.0"}
       ]
     end
 
