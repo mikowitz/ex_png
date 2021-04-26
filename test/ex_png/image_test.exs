@@ -149,12 +149,11 @@ defmodule ExPng.ImageTest do
 
     for filter <- [@filter_none, @filter_sub, @filter_up, @filter_average, @filter_paeth] do
       for interlace <- [true, false] do
-        {:ok, _} = Image.to_file(image, "experiment.png", filter: filter, interlace: interlace)
-        {:ok, read_image} = Image.from_file("experiment.png")
+        {:ok, data} = Image.to_binary(image, filter: filter, interlace: interlace)
+        {:ok, read_image} = Image.from_binary(data)
         assert image.pixels == read_image.pixels
       end
     end
 
-    :ok = File.rm("experiment.png")
   end
 end
