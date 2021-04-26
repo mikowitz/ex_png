@@ -70,6 +70,25 @@ defmodule ExPng.Image do
   end
 
   @doc """
+  Attempts to decode PNG binary data into an `ExPng.Image` and returns a success
+  tuple `{:ok, image}` or an error tuple explaining the encountered error.
+
+      File.read!("test/png_suite/basic/basi2c16.png") |> ExPng.Image.from_binary()
+      {:ok, %ExPng.Image{ ... }
+
+      ExPng.Image.from_binary("bad data")
+      {:error, "malformed PNG signature", "bad data"}
+
+  """
+  @spec from_binary(binary) :: success | error
+  def from_binary(binary_data) do
+    case ExPng.RawData.from_binary(binary_data) do
+      {:ok, raw_data} -> {:ok, Decoding.from_raw_data(raw_data)}
+      error -> error
+    end
+  end
+
+  @doc """
   Writes the `image` to disk at `filename` using the provided
   `encoding_options`.
 
@@ -88,6 +107,28 @@ defmodule ExPng.Image do
     with {:ok, raw_data} <- Encoding.to_raw_data(image, encoding_options) do
       RawData.to_file(raw_data, filename, encoding_options)
       {:ok, filename}
+    end
+  end
+
+  @doc """
+  Computes the png binary data using the provided
+  `encoding_options`.
+
+  Encoding options can be:
+
+  * interlace: whether or not the image is encoding with Adam7 interlacing.
+    * defaults to `false`
+  * filter: the filtering algorithm to use. Can be one of `ExPng.Image.Filtering.{none, sub, up, average, paeth}`
+    * defaults to `up`
+  * compression: the compression level for the zlib compression algorithm to use. Can be an integer between 0 (no compression) and 9 (max compression)
+    * defaults to 6
+
+  """
+  @spec to_binary(__MODULE__.t(), ExPng.maybe(keyword)) :: {:ok, binary}
+  def to_binary(%__MODULE__{} = image, encoding_options \\ []) do
+    with {:ok, raw_data} <- Encoding.to_raw_data(image, encoding_options) do
+      png_binary = RawData.to_binary(raw_data, encoding_options)
+      {:ok, png_binary}
     end
   end
 

@@ -49,6 +49,21 @@ defmodule ExPng.RawData do
   end
 
   @doc false
+  def from_binary(pngdata) do
+    with @signature <> data <- pngdata,
+         {:ok, header_chunk, data} <- parse_ihdr(data),
+         {:ok, chunks} <- parse_chunks(data, []),
+         {:ok, raw_data} <- from_chunks(header_chunk, chunks) do
+      {:ok, raw_data}
+    else
+      # data cannot be parsed as a valid PNG
+      {:ok, _data} -> {:error, "malformed PNG signature", pngdata}
+      # error during parsing the PNG data
+      {:error, error, _data} -> {:error, error, pngdata}
+    end
+  end
+
+  @doc false
   def to_file(%__MODULE__{} = raw_data, filename, encoding_options \\ []) do
     image_data = ImageData.to_bytes(raw_data.data_chunk, encoding_options)
 
@@ -73,6 +88,33 @@ defmodule ExPng.RawData do
         End.to_bytes(raw_data.end_chunk)
 
     File.write(filename, data)
+  end
+
+  @doc false
+  def to_binary(%__MODULE__{} = raw_data, encoding_options \\ []) do
+    image_data = ImageData.to_bytes(raw_data.data_chunk, encoding_options)
+
+    palette_data =
+      case raw_data.palette_chunk do
+        nil -> ""
+        palette -> Palette.to_bytes(palette)
+      end
+
+    transparency_data =
+      case raw_data.transparency_chunk do
+        nil -> ""
+        transparency -> Transparency.to_bytes(transparency)
+      end
+
+    data =
+      @signature <>
+        Header.to_bytes(raw_data.header_chunk) <>
+        palette_data <>
+        transparency_data <>
+        image_data <>
+        End.to_bytes(raw_data.end_chunk)
+
+    data
   end
 
   ## PRIVATE
