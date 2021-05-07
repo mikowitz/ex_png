@@ -154,6 +154,5 @@ defmodule ExPng.ImageTest do
         assert image.pixels == read_image.pixels
       end
     end
-
   end
 end
