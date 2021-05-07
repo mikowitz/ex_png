@@ -16,10 +16,15 @@ defmodule ExPngTest do
 
   describe "from_binary" do
     test "returns a success tuple when the binary is parseable" do
-      assert {:ok, _raw_data} = ExPng.Image.from_binary(File.read!("test/png_suite/basic/basi2c16.png"))
+      assert {:ok, _raw_data} =
+               ExPng.Image.from_binary(File.read!("test/png_suite/basic/basi2c16.png"))
     end
+
     test "returns an error tuple when the binary isn't parseable" do
-      assert {:error, "malformed IDAT", _data} = ExPng.Image.from_binary(File.read!("test/png_suite/broken/image_data/xcsn0g01.png"))
+      assert {:error, "malformed IDAT", _data} =
+               ExPng.Image.from_binary(
+                 File.read!("test/png_suite/broken/image_data/xcsn0g01.png")
+               )
     end
   end
 

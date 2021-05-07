@@ -60,6 +60,7 @@ defmodule ExPng.RawData do
       {:ok, _data} -> {:error, "malformed PNG signature", pngdata}
       # error during parsing the PNG data
       {:error, error, _data} -> {:error, error, pngdata}
+      {:error, error} -> {:error, error, pngdata}
     end
   end
 
@@ -174,7 +175,7 @@ defmodule ExPng.RawData do
         }
       }
     else
-      error -> error
+      {:error, error} -> {:error, error}
     end
   end
 
