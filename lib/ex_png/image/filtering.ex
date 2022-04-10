@@ -4,9 +4,9 @@ defmodule ExPng.Image.Filtering do
   image data
   """
 
-  use Bitwise
   use ExPng.Constants
 
+  import Bitwise
   import ExPng.Utilities, only: [reduce_to_binary: 1]
 
   @type filtered_line :: {ExPng.filter(), binary}

@@ -4,7 +4,6 @@ defmodule ExPng.Color do
   values.
   """
   use ExPng.Constants
-  use Bitwise
 
   @type rgba_value :: 0..255
   @type t :: <<_::32>>

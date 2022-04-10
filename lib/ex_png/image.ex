@@ -193,7 +193,7 @@ defmodule ExPng.Image do
 end
 
 defimpl Inspect, for: ExPng.Image do
-  use Bitwise
+  import Bitwise
 
   def inspect(%ExPng.Image{pixels: pixels}, _opts) do
     for line <- pixels do
