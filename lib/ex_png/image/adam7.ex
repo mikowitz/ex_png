@@ -1,8 +1,9 @@
 defmodule ExPng.Image.Adam7 do
   @moduledoc false
 
-  use Bitwise
   alias ExPng.{Color, Image, Image.Decoding, Image.Pixelation, RawData}
+
+  import Bitwise
 
   @pass_shifts_and_offsets [
     [3, 0, 3, 0],
